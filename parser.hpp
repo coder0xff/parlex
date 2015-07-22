@@ -11,6 +11,7 @@
 namespace parlex {
 namespace details {
 
+class job;
 class subjob;
 struct parse_context;
 
@@ -33,7 +34,7 @@ private:
 
 	void schedule(details::parse_context const & context, details::match_class const & matchClass);
 	bool handle_deadlocks_check_completion();
-	abstract_syntax_graph construct_result();
+	abstract_syntax_graph construct_result(details::job const & j, details::match_class const & matchClass);
 };
 
 }

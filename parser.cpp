@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include "job.hpp"
 #include "parse_context.hpp"
+#include "permutation.hpp"
 
 namespace parlex {
 
@@ -45,7 +46,7 @@ abstract_syntax_graph parser::parse(grammar const & g, std::u32string const & do
 	}
 	details::job j(this, document, i->second);
 	halt_cv.wait(lock, [this]{ return handle_deadlocks_check_completion(); });
-	return construct_result();
+	return construct_result(j, details::match_class(details::match_category(&i->second, 0), document.size()));
 }
 
 void parser::schedule(details::parse_context const & context, details::match_class const & matchClass) {
@@ -55,12 +56,16 @@ void parser::schedule(details::parse_context const & context, details::match_cla
 	work_cv.notify_one();
 }
 
-abstract_syntax_graph parser::construct_result(job const & j, match_class const & matchClass) {
+abstract_syntax_graph parser::construct_result(details::job const & j, details::match_class const & matchClass) {
 	abstract_syntax_graph result(matchClass);
 	for (auto const & pair : j.subjobs) {
-		match_category const & matchCategory = pair.first;
-		subjob const & subJob = pair.second;
-		for (auto const & pair2 : subJob.)
+		details::match_category const & matchCategory = pair.first;
+		details::subjob const & subJob = pair.second;
+		for (auto const & pair2 : subJob.matches) {
+			details::match_class const & matchClass = pair2.first;
+			std::set<permutation> const & matches = pair2.second;
+			
+		}
 	}
 }
 

@@ -5,13 +5,13 @@
 #include <set>
 
 #include "match_class.hpp"
-#include "match.hpp"
+#include "permutation.hpp"
 
 namespace parlex {
 
 struct abstract_syntax_graph {
 	inline abstract_syntax_graph(details::match_class root) : root(root) {}
-	std::map<details::match_class, std::set<match>> table;
+	std::map<details::match_class, std::set<permutation>> table;
 	details::match_class root;
 };
 

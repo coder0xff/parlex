@@ -1,5 +1,5 @@
-#ifndef MATCH_CLASS_H
-#define MATCH_CLASS_H
+#ifndef MATCH_CLASS_HPP
+#define MATCH_CLASS_HPP
 
 #include "match_category.hpp"
 
