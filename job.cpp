@@ -1,30 +1,42 @@
 #include "job.hpp"
 #include "terminal.hpp"
 #include "parse_context.hpp"
+#include "parser.hpp"
 
 namespace parlex {
 namespace details {
 
-void job::connect_dependent(subjob * dependent, int nextState, parse_context const & context, match_category const & match_category) {
-	auto as_terminal = dynamic_cast<terminal const *>(match_category.recognizer);
-	if (as_terminal) {
-		if (as_terminal->test(document, match_category.document_position)) {
-			auto new_parse_context = context;
-			new_parse_context.current_document_position += as_terminal->get_length();
-			dependent->process_state(nextState, new_parse_context);
-		}
-	} else {
-		auto recognizer = static_cast<dfa const *>(match_category.recognizer);
+job::job(parser * owner, std::u32string const & document, dfa const & main) :
+		owner(owner),
+		document(document),
+		main(main)
+	{
 		std::unique_lock<std::mutex> lock;
 		auto pair = subjobs.emplace(
 			std::piecewise_construct,
-			std::forward_as_tuple(match_category),
-			std::forward_as_tuple(this, recognizer, match_category.document_position));
-		if (pair.second) {
-			parse_context context(this, match_category.document_position, recognizer);
-			pair.first->second.start(context);
+			std::forward_as_tuple(match_category(&main, 0)),
+			std::forward_as_tuple(this, &main, 0));
+		pair.first->second.start();
+	}
+
+void job::connect(subjob * dependent, match_category const & matchCategory, parse_context const & context) {
+	auto as_terminal = dynamic_cast<terminal const *>(matchCategory.recognizer);
+	if (as_terminal) {
+		if (as_terminal->test(document, matchCategory.document_position)) {
+			match_class matchClass(matchCategory, as_terminal->get_length());
+			schedule(context, matchClass);
 		}
-		pair.first->second.receive_subscription(context, dependent);
+	} else {
+		auto recognizer = static_cast<dfa const *>(matchCategory.recognizer);
+		std::unique_lock<std::mutex> lock;
+		auto pair = subjobs.emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(matchCategory),
+			std::forward_as_tuple(this, recognizer, matchCategory.document_position));
+		if (pair.second) {
+			pair.first->second.start();
+		}
+		pair.first->second.add_subscription(context);
 	}
 }
 

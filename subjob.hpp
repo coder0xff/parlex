@@ -18,32 +18,30 @@ class job;
 
 class subjob {
 public:
-	subjob(job * owner, dfa const * recognizer, int documentPosition);
-	subjob(subjob const & other) = delete;
-
-	void receive_subscription(parse_context const & context, subjob * subscriber);
-
-	struct subscription {
-		int next_index;
-		parse_context const context;
-		subjob * const dependent;
-		inline subscription(parse_context const & context, subjob * dependent) : next_index(0), context(context), dependent(dependent) {}
-	};
-
 	job * const owner;
-	dfa const * const recognizer;
+	dfa const * const state_machine;
 	int document_position;
 	bool completed;
 	std::list<subscription> subscriptions;
 	std::vector<match_class> classes;
-	std::map<match_class, match> matches;
+	std::map<match_class, std::set<match>> matches;
 	std::mutex mutex;
 
-	void start(parse_context const & context);
-	void process_state(int state, parse_context const & context);
+	subjob(job * owner, dfa const * recognizer, int documentPosition);
+	subjob(subjob const & other) = delete;
+	void start();
+	void process_state(int state, int current_document_position, std::vector<match_class> const & preceding_matches);
 	void accept(int consumedCharacterCount) const;
 	void do_events();
 	void step(parse_context const & context, match_class const & match_class);
+
+	struct subscription {
+		int next_index;
+		parse_context const context;
+		inline subscription(parse_context const & context) : next_index(0), context(context) {}
+	};
+
+	void add_subscription(parse_context const & context);
 };
 
 }

@@ -1,13 +1,13 @@
 CC=clang
 CXX=clang++
 RM=rm -f
-CPPFLAGS=-std=c++11 -g
+CPPFLAGS=-std=c++11 -g -I ../
 
 SRCS=$(wildcard *.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
 
-libparlex.a: $(OBJS)
-	$(AR) -rvsc libparlex.a $(OBJS)
+test.exe: $(OBJS)
+	$(CXX) $(OBJS) -L ../ -lparlex -o test.exe
 
 depend: .depend
 

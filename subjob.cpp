@@ -4,25 +4,26 @@
 
 #include "parse_context.hpp"
 #include "job.hpp"
+#include "recognizer.hpp"
 
 namespace parlex {
 namespace details {
 
 subjob::subjob(
 	job * owner,
-	dfa const * recognizer,
+	dfa const * stateMachine,
 	int documentPosition
 ):
 	owner(owner),
-	recognizer(recognizer),
+	state_machine(stateMachine),
 	completed(0),
 	document_position(documentPosition)
 { }
 
-void subjob::receive_subscription(parse_context const & context, subjob * dependent) {
+void subjob::add_subscription(parse_context const & context) {
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		subscriptions.emplace_back(context, dependent);
+		subscriptions.emplace_back(context);
 	}  //release the lock
 	do_events();
 }
@@ -31,30 +32,31 @@ void subjob::do_events() {
 	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
 		while (subscription.next_index < classes.size()) {
-			auto dependent = subscription.dependent;
-			auto parse_context = subscription.context;
 			auto match_class = classes[subscription.next_index];
 			subscription.next_index++;			
-			owner->schedule([=]() {
-				dependent->step(parse_context, match_class);
-			});
-		}
+			owner->schedule(subscription.context, match_class);
+		};
 	}
 }
 
-void subjob::start(parse_context const & context) {
-	process_state(recognizer->start_state, context);
+void subjob::start() {
+	process_state(state_machine->start_state, document_position, std::vector<match_class>());
 }
 
-void subjob::process_state(int state, parse_context const & context) {
-	if (state == context.recognizer->accept_state) {
-		accept(context.current_document_position - context.subjob_document_position);
+void subjob::process_state(
+		int state,
+		int current_document_position,
+		std::vector<match_class> const & preceding_matches) {
+
+	if (state == state_machine->accept_state) {
+		accept(current_document_position - document_position);
 	}
-	for (auto const & kvp : context.recognizer->function[state]) {		
-		match_category category;
-		category.recognizer = kvp.first;
-		category.document_position = context.current_document_position;
-		owner->connect_dependent(this, kvp.second, context, category);
+	for (auto const & kvp : state_machine->function[state]) {
+		recognizer const * transition = kvp.first;
+		int next_state = kvp.second;
+		parse_context context(this, current_document_position, next_state);
+		match_category category(transition, current_document_position);
+		owner->connect(this, category, context);
 	}
 }
 

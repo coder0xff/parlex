@@ -1,10 +1,14 @@
 #ifndef GRAMMAR_HPP
 #define GRAMMAR_HPP
 
+#include <map>
+#include <string>
+
+#include "dfa.hpp"
+
 namespace parlex {
 
-template<TStateMachine>
-typedef std::dictionary<std::string, TStateMachine> grammar;
+typedef std::map<std::string, dfa> grammar;
 
 }
 

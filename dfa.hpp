@@ -10,7 +10,7 @@ namespace parlex {
 
 class dfa : public recognizer {
 public:
-	virtual ~dfa();
+	virtual ~dfa() = default;
 	std::vector<std::map<recognizer const *, int>> function;
 	int start_state;
 	int accept_state;

@@ -7,17 +7,26 @@
 #include "subjob.hpp"
 
 namespace parlex {
+
+class parser;
+
 namespace details {
 
+//holds the state of the parser during a parse
+//making it a type makes it easy for the parser to reset its state
 class job {
 public:
 	std::u32string const document;
-	dfa const recognizer;
-	void connect_dependent(subjob * dependent, int nextState, parse_context const & context, match_category const & match_category);
-	void schedule(std::function<void ()> work);
-private:
+	dfa const main;
 	std::map<match_category, subjob> subjobs;
-	std::mutex mutex;
+
+	job(parser * owner, std::u32string const & document, dfa const & main);
+	void connect(subjob * dependent, match_category const & match_category, parse_context const & context);
+	void schedule(parse_context const & context, match_class const & matchClass);
+	void start();
+
+private:
+	parser * owner;
 };
 
 }
