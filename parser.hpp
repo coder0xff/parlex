@@ -3,6 +3,7 @@
 
 #include <thread>
 #include <condition_variable>
+#include <atomic>
 #include <queue>
 
 #include "abstract_syntax_graph.hpp"
@@ -23,9 +24,11 @@ public:
 	~parser();
 	abstract_syntax_graph parse(grammar const & g, std::u32string const & document);
 private:
+	friend class details::job;
+	friend class details::subjob;
 	std::mutex mutex;
 	std::condition_variable halt_cv;	
-	int activeCount;
+	std::atomic<int> activeCount;
 	bool terminating;
 
 	std::vector<std::thread> workers;
@@ -33,7 +36,8 @@ private:
 	std::condition_variable work_cv;
 
 	void schedule(details::parse_context const & context, details::match const & match);
-	bool handle_deadlocks_check_completion();
+	//returns true if the job is complete
+	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);
 };
 

@@ -24,7 +24,7 @@ void job::connect(subjob * dependent, match_class const & matchClass, parse_cont
 	if (as_terminal) {
 		if (as_terminal->test(document, matchClass.document_position)) {
 			match match(matchClass, as_terminal->get_length());
-			schedule(context, match);
+			owner->schedule(context, match);
 		}
 	} else {
 		auto recognizer = static_cast<dfa const *>(matchClass.recognizer);

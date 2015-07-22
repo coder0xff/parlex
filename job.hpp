@@ -22,10 +22,10 @@ public:
 
 	job(parser * owner, std::u32string const & document, dfa const & main);
 	void connect(subjob * dependent, match_class const & match_class, parse_context const & context);
-	void schedule(parse_context const & context, match const & match);
 	void start();
 
 private:
+	friend details::subjob;
 	parser * owner;
 };
 

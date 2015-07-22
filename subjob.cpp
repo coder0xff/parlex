@@ -5,6 +5,7 @@
 #include "parse_context.hpp"
 #include "job.hpp"
 #include "recognizer.hpp"
+#include "parser.hpp"
 
 namespace parlex {
 namespace details {
@@ -31,10 +32,10 @@ void subjob::add_subscription(parse_context const & context) {
 void subjob::do_events() {
 	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
-		while (subscription.next_index < classes.size()) {
-			auto match = classes[subscription.next_index];
+		while (subscription.next_index < matchToPermutations.size()) {
+			auto match = matches[subscription.next_index];
 			subscription.next_index++;			
-			owner->schedule(subscription.context, match);
+			owner->owner->schedule(subscription.context, match);
 		};
 	}
 }
@@ -49,7 +50,7 @@ void subjob::process_state(
 		std::vector<match> const & preceding_permutations) {
 
 	if (state == state_machine->accept_state) {
-		accept(current_document_position - document_position);
+		accept(current_document_position - document_position, std::vector<match>());
 	}
 	for (auto const & kvp : state_machine->function[state]) {
 		recognizer const * transition = kvp.first;
@@ -59,6 +60,24 @@ void subjob::process_state(
 		owner->connect(this, category, context);
 	}
 }
+
+void subjob::accept(int consumedCharacterCount, std::vector<match> const & children) {
+	bool newMatch = false;
+	{
+		std::unique_lock<std::mutex> lock(mutex);
+		match m(match_class(state_machine, document_position), consumedCharacterCount);
+		if (!matchToPermutations.count(m)) {
+			matchToPermutations[m] = std::set<permutation>();
+			matches.push_back(m);
+			newMatch = true;			
+		}
+		matchToPermutations[m].insert(children);
+	}
+	if (newMatch) {
+		do_events();
+	}
+}
+
 
 }
 }
