@@ -25,10 +25,10 @@ struct parse_context {
 			dfa_state(dfa_state) {
 	}
 
-	inline parse_context step(match matchClass, int dfa_state) {
+	inline parse_context step(match match, int dfa_state) {
 		parse_context result = *this;
-		result.current_document_position += matchClass.consumed_character_count;
-		result.preceeding_match_classes.push_back(matchClass);
+		result.current_document_position += match.consumed_character_count;
+		result.preceeding_match_classes.push_back(match);
 		result.dfa_state = dfa_state;
 		return result;
 	}

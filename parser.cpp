@@ -16,7 +16,7 @@ parser::parser(int threadCount) {
 					work.pop();
 					lock.unlock();
 					details::parse_context const & context = item.first;
-					details::match const & matchClass = item.second;
+					details::match const & match = item.second;
 					context.owner->process_state(context.dfa_state, context.current_document_position, context.preceeding_match_classes);
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
@@ -49,24 +49,25 @@ abstract_syntax_graph parser::parse(grammar const & g, std::u32string const & do
 	return construct_result(j, details::match(details::match_class(&i->second, 0), document.size()));
 }
 
-void parser::schedule(details::parse_context const & context, details::match const & matchClass) {
+void parser::schedule(details::parse_context const & context, details::match const & match) {
 	std::unique_lock<std::mutex> lock(mutex);
 	activeCount++;
-	work.emplace(context, matchClass);
+	work.emplace(context, match);
 	work_cv.notify_one();
 }
 
-abstract_syntax_graph parser::construct_result(details::job const & j, details::match const & matchClass) {
-	abstract_syntax_graph result(matchClass);
+abstract_syntax_graph parser::construct_result(details::job const & j, details::match const & match) {
+	abstract_syntax_graph result(match);
 	for (auto const & pair : j.subjobs) {
-		details::match_class const & matchCategory = pair.first;
+		details::match_class const & matchClass = pair.first;
 		details::subjob const & subJob = pair.second;
-		for (auto const & pair2 : subJob.matches) {
-			details::match const & matchClass = pair2.first;
-			std::set<permutation> const & matches = pair2.second;
-			
+		for (auto const & pair2 : subJob.permutations) {
+			details::match const & match = pair2.first;
+			std::set<permutation> const & permutations = pair2.second;
+			result.table[match] = permutations;
 		}
 	}
+	return result;
 }
 
 }

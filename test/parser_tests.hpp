@@ -14,14 +14,14 @@ void assert_asg(parlex::abstract_syntax_graph const & expected, parlex::abstract
 
 	for (auto const & pair : expected.table) {
 		auto const & expected_match_class = pair.first;
-		std::set<parlex::permutation> const & expected_matches = pair.second;
+		std::set<parlex::permutation> const & expected_permutations = pair.second;
 		auto i = actual.table.find(expected_match_class);
 		if (i == actual.table.end()) {
 			throw "match missing";
 		}
-		std::set<parlex::permutation> const & actual_matches = i->second;
-		if (expected_matches != actual_matches) {
-			throw "matches differ";
+		std::set<parlex::permutation> const & actual_permutations = i->second;
+		if (expected_permutations != actual_permutations) {
+			throw "permutations differ";
 		}
 	}
 }

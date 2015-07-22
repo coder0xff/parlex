@@ -10,7 +10,7 @@ struct match {
 	struct match_class match_class;
 	int consumed_character_count;
 
-	inline match(struct match_class const & matchCategory, int consumedCharacterCount) : match_class(matchCategory), consumed_character_count(consumedCharacterCount) {}
+	inline match(struct match_class const & matchClass, int consumedCharacterCount) : match_class(matchClass), consumed_character_count(consumedCharacterCount) {}
 
 	inline bool operator <(match const & rhs) const {
 		return consumed_character_count < rhs.consumed_character_count || 

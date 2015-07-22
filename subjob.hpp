@@ -31,13 +31,13 @@ public:
 	bool completed;
 	std::list<subscription> subscriptions;
 	std::vector<match> classes;
-	std::map<match, std::set<permutation>> matches;
+	std::map<match, std::set<permutation>> permutations;
 	std::mutex mutex;
 
 	subjob(job * owner, dfa const * recognizer, int documentPosition);
 	subjob(subjob const & other) = delete;
 	void start();
-	void process_state(int state, int current_document_position, std::vector<match> const & preceding_matches);
+	void process_state(int state, int current_document_position, std::vector<match> const & preceding_permutations);
 	void accept(int consumedCharacterCount) const;
 	void do_events();
 	void step(parse_context const & context, match const & match);

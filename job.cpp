@@ -19,20 +19,20 @@ job::job(parser * owner, std::u32string const & document, dfa const & main) :
 		pair.first->second.start();
 	}
 
-void job::connect(subjob * dependent, match_class const & matchCategory, parse_context const & context) {
-	auto as_terminal = dynamic_cast<terminal const *>(matchCategory.recognizer);
+void job::connect(subjob * dependent, match_class const & matchClass, parse_context const & context) {
+	auto as_terminal = dynamic_cast<terminal const *>(matchClass.recognizer);
 	if (as_terminal) {
-		if (as_terminal->test(document, matchCategory.document_position)) {
-			match matchClass(matchCategory, as_terminal->get_length());
-			schedule(context, matchClass);
+		if (as_terminal->test(document, matchClass.document_position)) {
+			match match(matchClass, as_terminal->get_length());
+			schedule(context, match);
 		}
 	} else {
-		auto recognizer = static_cast<dfa const *>(matchCategory.recognizer);
+		auto recognizer = static_cast<dfa const *>(matchClass.recognizer);
 		std::unique_lock<std::mutex> lock;
 		auto pair = subjobs.emplace(
 			std::piecewise_construct,
-			std::forward_as_tuple(matchCategory),
-			std::forward_as_tuple(this, recognizer, matchCategory.document_position));
+			std::forward_as_tuple(matchClass),
+			std::forward_as_tuple(this, recognizer, matchClass.document_position));
 		if (pair.second) {
 			pair.first->second.start();
 		}

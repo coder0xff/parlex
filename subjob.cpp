@@ -46,7 +46,7 @@ void subjob::start() {
 void subjob::process_state(
 		int state,
 		int current_document_position,
-		std::vector<match> const & preceding_matches) {
+		std::vector<match> const & preceding_permutations) {
 
 	if (state == state_machine->accept_state) {
 		accept(current_document_position - document_position);
