@@ -1,28 +1,21 @@
 #ifndef MATCH_CLASS_HPP
 #define MATCH_CLASS_HPP
 
-#include "match_category.hpp"
-
 namespace parlex {
+
+class recognizer;
+
 namespace details {
 
 struct match_class {
-	struct match_category match_category;
-	int consumed_character_count;
+	recognizer const * recognizer;
+	int document_position;
 
-	inline match_class(struct match_category const & matchCategory, int consumedCharacterCount) : match_category(matchCategory), consumed_character_count(consumedCharacterCount) {}
+	inline match_class(class recognizer const * recognizer, int documentPosition) : recognizer(recognizer), document_position(documentPosition) {}
 
 	inline bool operator <(match_class const & rhs) const {
-		return consumed_character_count < rhs.consumed_character_count || 
-			(consumed_character_count == rhs.consumed_character_count && match_category < rhs.match_category);
-	}
-
-	inline bool operator !=(match_class const & rhs) const {
-		return *this < rhs || rhs < *this;
-	}
-
-	inline bool operator ==(match_class const & rhs) const {
-		return !(*this != rhs);
+		return document_position < rhs.document_position || 
+			(document_position == rhs.document_position && recognizer < rhs.recognizer);
 	}
 };
 

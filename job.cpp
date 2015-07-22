@@ -14,16 +14,16 @@ job::job(parser * owner, std::u32string const & document, dfa const & main) :
 		std::unique_lock<std::mutex> lock;
 		auto pair = subjobs.emplace(
 			std::piecewise_construct,
-			std::forward_as_tuple(match_category(&main, 0)),
+			std::forward_as_tuple(match_class(&main, 0)),
 			std::forward_as_tuple(this, &main, 0));
 		pair.first->second.start();
 	}
 
-void job::connect(subjob * dependent, match_category const & matchCategory, parse_context const & context) {
+void job::connect(subjob * dependent, match_class const & matchCategory, parse_context const & context) {
 	auto as_terminal = dynamic_cast<terminal const *>(matchCategory.recognizer);
 	if (as_terminal) {
 		if (as_terminal->test(document, matchCategory.document_position)) {
-			match_class matchClass(matchCategory, as_terminal->get_length());
+			match matchClass(matchCategory, as_terminal->get_length());
 			schedule(context, matchClass);
 		}
 	} else {

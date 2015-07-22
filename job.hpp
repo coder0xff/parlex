@@ -18,11 +18,11 @@ class job {
 public:
 	std::u32string const document;
 	dfa const main;
-	std::map<match_category, subjob> subjobs;
+	std::map<match_class, subjob> subjobs;
 
 	job(parser * owner, std::u32string const & document, dfa const & main);
-	void connect(subjob * dependent, match_category const & match_category, parse_context const & context);
-	void schedule(parse_context const & context, match_class const & matchClass);
+	void connect(subjob * dependent, match_class const & match_class, parse_context const & context);
+	void schedule(parse_context const & context, match const & matchClass);
 	void start();
 
 private:

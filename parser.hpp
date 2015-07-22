@@ -29,12 +29,12 @@ private:
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::pair<details::parse_context, details::match_class>> work;
+	std::queue<std::pair<details::parse_context, details::match>> work;
 	std::condition_variable work_cv;
 
-	void schedule(details::parse_context const & context, details::match_class const & matchClass);
+	void schedule(details::parse_context const & context, details::match const & matchClass);
 	bool handle_deadlocks_check_completion();
-	abstract_syntax_graph construct_result(details::job const & j, details::match_class const & matchClass);
+	abstract_syntax_graph construct_result(details::job const & j, details::match const & matchClass);
 };
 
 }

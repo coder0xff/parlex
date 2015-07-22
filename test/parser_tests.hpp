@@ -17,7 +17,7 @@ void assert_asg(parlex::abstract_syntax_graph const & expected, parlex::abstract
 		std::set<parlex::permutation> const & expected_matches = pair.second;
 		auto i = actual.table.find(expected_match_class);
 		if (i == actual.table.end()) {
-			throw "match_class missing";
+			throw "match missing";
 		}
 		std::set<parlex::permutation> const & actual_matches = i->second;
 		if (expected_matches != actual_matches) {
@@ -35,9 +35,9 @@ void parser_one_character_test() {
 	parlex::grammar g;
 	g["main"] = recognizer;
 
-	parlex::details::match_class expected_root(parlex::details::match_category(&recognizer, 0), document.length());
+	parlex::details::match expected_root(parlex::details::match_class(&recognizer, 0), document.length());
 	parlex::abstract_syntax_graph expected(expected_root);
-	parlex::details::match_class expected_child(parlex::details::match_category(&parlex::any_character, 0), 1);
+	parlex::details::match expected_child(parlex::details::match_class(&parlex::any_character, 0), 1);
 	expected.table[expected_root].insert(parlex::permutation ({ expected_child }));
 	expected.table[expected_child].insert(parlex::permutation());
 

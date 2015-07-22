@@ -32,21 +32,21 @@ void subjob::do_events() {
 	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
 		while (subscription.next_index < classes.size()) {
-			auto match_class = classes[subscription.next_index];
+			auto match = classes[subscription.next_index];
 			subscription.next_index++;			
-			owner->schedule(subscription.context, match_class);
+			owner->schedule(subscription.context, match);
 		};
 	}
 }
 
 void subjob::start() {
-	process_state(state_machine->start_state, document_position, std::vector<match_class>());
+	process_state(state_machine->start_state, document_position, std::vector<match>());
 }
 
 void subjob::process_state(
 		int state,
 		int current_document_position,
-		std::vector<match_class> const & preceding_matches) {
+		std::vector<match> const & preceding_matches) {
 
 	if (state == state_machine->accept_state) {
 		accept(current_document_position - document_position);
@@ -55,7 +55,7 @@ void subjob::process_state(
 		recognizer const * transition = kvp.first;
 		int next_state = kvp.second;
 		parse_context context(this, current_document_position, next_state);
-		match_category category(transition, current_document_position);
+		match_class category(transition, current_document_position);
 		owner->connect(this, category, context);
 	}
 }

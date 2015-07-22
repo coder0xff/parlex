@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include "match_class.hpp"
+#include "match.hpp"
 
 namespace parlex {
 
-typedef std::vector<details::match_class> permutation;
+typedef std::vector<details::match> permutation;
 
 }
 
