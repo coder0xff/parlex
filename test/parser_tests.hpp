@@ -30,7 +30,11 @@ void parser_one_character_test() {
 	//setup the test input
 	std::u32string document = U"a";
 	parlex::dfa recognizer;
-	recognizer.function[0][&parlex::any_character] = 0;
+	recognizer.function.emplace_back();
+	recognizer.function.emplace_back();
+	recognizer.function[0][&parlex::any_character] = 1;
+	recognizer.start_state = 0;
+	recognizer.accept_state = 1;
 
 	parlex::grammar g;
 	g["main"] = recognizer;
@@ -43,7 +47,7 @@ void parser_one_character_test() {
 	expected.table[expected_child].insert(parlex::permutation());
 
 	//test
-	parlex::parser p;
+	parlex::parser p(1);
 	parlex::abstract_syntax_graph actual = p.parse(g, document);
 
 	assert_asg(expected, actual);

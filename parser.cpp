@@ -7,7 +7,7 @@
 
 namespace parlex {
 
-parser::parser(int threadCount) {
+parser::parser(int threadCount) : activeCount(0), terminating(false) {
 	for (; threadCount > 0; --threadCount) {
 		workers.emplace_back([=]() {
 			std::unique_lock<std::mutex> lock(mutex);
@@ -26,7 +26,7 @@ parser::parser(int threadCount) {
 					lock.lock();
 				}
 wait:
-				work_cv.wait(lock, [this]() { return work.size() > 0 && !terminating; });
+				work_cv.wait(lock, [this]() { return work.size() > 0 || terminating; });
 			}
 		});
 	}
@@ -46,8 +46,15 @@ abstract_syntax_graph parser::parse(grammar const & g, std::u32string const & do
 	if (i == g.end()) {
 		throw "no main production";
 	}
+	lock.unlock();
 	details::job j(this, document, i->second);
-	halt_cv.wait(lock, [&]{ return handle_deadlocks(j); });
+	lock.lock();
+	while (activeCount != 0) {
+		halt_cv.wait(lock);
+		if (handle_deadlocks(j)) {
+			break;
+		}
+	};
 	return construct_result(j, details::match(details::match_class(&i->second, 0), document.size()));
 }
 
@@ -73,9 +80,8 @@ abstract_syntax_graph parser::construct_result(details::job const & j, details::
 }
 
 bool parser::handle_deadlocks(details::job const & j) {
-	std::unique_lock<std::mutex> lock(mutex);
 	assert(activeCount == 0);
-	throw "not implemented";
+	return true;
 }
 
 }

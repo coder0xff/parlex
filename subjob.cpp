@@ -56,8 +56,8 @@ void subjob::process_state(
 		recognizer const * transition = kvp.first;
 		int next_state = kvp.second;
 		parse_context context(this, current_document_position, next_state);
-		match_class category(transition, current_document_position);
-		owner->connect(this, category, context);
+		match_class matchClass(transition, current_document_position);
+		owner->connect(this, matchClass, context);
 	}
 }
 
