@@ -11,12 +11,12 @@ namespace parlex {
 namespace details {
 
 subjob::subjob(
-	job * owner,
-	dfa const * stateMachine,
+	job & owner,
+	recognizer const & r,
 	int documentPosition
 ):
 	owner(owner),
-	state_machine(stateMachine),
+	r(r),
 	completed(0),
 	document_position(documentPosition)
 { }
@@ -32,10 +32,17 @@ void subjob::add_subscription(parse_context const & context) {
 void subjob::do_events() {
 	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
+		if (subscription.context.owner.completed) {
+			continue;
+		}
 		while (subscription.next_index < matchToPermutations.size()) {
 			auto match = matches[subscription.next_index];
 			subscription.next_index++;			
-			owner->owner->schedule(subscription.context, match);
+			owner.owner.schedule([](){
+				parse_context next = subscription.context;
+				next.current_document_position += match.consumedCharacterCount;
+				subscription.f
+			}); //subscription.context, match);
 		};
 	}
 }
@@ -44,22 +51,7 @@ void subjob::start() {
 	process_state(state_machine->start_state, document_position, std::vector<match>());
 }
 
-void subjob::process_state(
-		int state,
-		int current_document_position,
-		std::vector<match> const & preceding_permutations) {
 
-	if (state == state_machine->accept_state) {
-		accept(current_document_position - document_position, std::vector<match>());
-	}
-	for (auto const & kvp : state_machine->function[state]) {
-		recognizer const * transition = kvp.first;
-		int next_state = kvp.second;
-		parse_context context(this, current_document_position, next_state);
-		match_class matchClass(transition, current_document_position);
-		owner->connect(this, matchClass, context);
-	}
-}
 
 void subjob::accept(int consumedCharacterCount, std::vector<match> const & children) {
 	bool newMatch = false;

@@ -3,7 +3,7 @@
 namespace parlex {
 namespace details {
 
-bool any_character_t::test(std::u32string document, int documentPosition) const {
+bool any_character_t::test(std::u32string const & document, int documentPosition) const {
 	return documentPosition < document.length();
 }
 

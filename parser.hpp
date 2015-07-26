@@ -22,7 +22,7 @@ class parser {
 public:
 	parser(int thread_count = std::thread::hardware_concurrency());
 	~parser();
-	abstract_syntax_graph parse(grammar const & g, std::u32string const & document);
+	abstract_syntax_graph parse(recognizer const & g, std::u32string const & document);
 private:
 	friend class details::job;
 	friend class details::subjob;
@@ -32,10 +32,10 @@ private:
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::pair<details::parse_context, details::match>> work;
+	std::queue<std::function<void ()>> work;
 	std::condition_variable work_cv;
 
-	void schedule(details::parse_context const & context, details::match const & match);
+	void schedule(std::function<void ()> const & f);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);

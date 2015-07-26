@@ -8,7 +8,7 @@
 
 namespace parlex {
 
-class dfa : public recognizer {
+class dfa {
 public:
 	inline dfa() : start_state(-1), accept_state(-1) {}
 	virtual ~dfa() = default;

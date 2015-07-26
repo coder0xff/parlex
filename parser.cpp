@@ -14,12 +14,10 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 			goto wait;			
 			while (!terminating) {
 				{
-					std::pair<details::parse_context, details::match> item = work.front();
+					std::function<void ()> item = work.front();
 					work.pop();
 					lock.unlock();
-					details::parse_context const & context = item.first;
-					details::match const & match = item.second;
-					context.owner->process_state(context.dfa_state, context.current_document_position, context.preceeding_matches);
+					item();
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
 					}
@@ -40,28 +38,22 @@ parser::~parser() {
 	}
 }
 
-abstract_syntax_graph parser::parse(grammar const & g, std::u32string const & document) {
+abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const & document) {
+	details::job j(this, document, r);
 	std::unique_lock<std::mutex> lock(mutex);
-	auto i = g.find("main");
-	if (i == g.end()) {
-		throw "no main production";
-	}
-	lock.unlock();
-	details::job j(this, document, i->second);
-	lock.lock();
 	while (activeCount != 0) {
 		halt_cv.wait(lock);
 		if (handle_deadlocks(j)) {
 			break;
 		}
 	};
-	return construct_result(j, details::match(details::match_class(&i->second, 0), document.size()));
+	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(details::parse_context const & context, details::match const & match) {
+void parser::schedule(std::function<void ()> const & f) {
 	activeCount++;
 	std::unique_lock<std::mutex> lock(mutex);
-	work.emplace(context, match);
+	work.emplace(f);
 	work_cv.notify_one();
 }
 

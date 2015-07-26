@@ -6,6 +6,7 @@
 #include <map>
 #include <mutex>
 #include <set>
+#include <atomic>
 
 #include "match.hpp"
 #include "permutation.hpp"
@@ -25,24 +26,24 @@ public:
 		inline subscription(parse_context const & context) : next_index(0), context(context) {}
 	};
 
-	job * const owner;
-	dfa const * const state_machine;
+	job const & owner;
+	recognizer const & r;
 	int document_position;
-	bool completed;
+	std::atomic<bool> completed;
 	std::list<subscription> subscriptions;
 	std::vector<match> matches;
 	std::map<match, std::set<permutation>> matchToPermutations;
 	std::mutex mutex;
 
-	subjob(job * owner, dfa const * recognizer, int documentPosition);
+	subjob(job & owner, recognizer const & r, int documentPosition);
 	subjob(subjob const & other) = delete;
 	void start();
-	void process_state(int state, int current_document_position, std::vector<match> const & preceding_permutations);
-	void accept(int consumedCharacterCount, std::vector<match> const & children);
+	void on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children);
 	void do_events();
-	void step(parse_context const & context, match const & match);
 
 	void add_subscription(parse_context const & context);
+	void on_dead_lock();
+	void on_completed();
 };
 
 }

@@ -14,12 +14,12 @@ namespace details {
 class subjob;
 
 struct parse_context {
-	subjob * owner;
+	subjob & owner;
 	int current_document_position;
 	std::vector<match> preceeding_matches;
 	int dfa_state;
 
-	inline parse_context(subjob * owner, int document_position, int dfa_state) :
+	inline parse_context(subjob & owner, int document_position, int dfa_state) :
 			owner(owner),
 			current_document_position(document_position),
 			dfa_state(dfa_state) {

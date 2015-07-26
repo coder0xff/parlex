@@ -3,8 +3,10 @@
 
 #include <string>
 
-#include "dfa.hpp"
+#include "recognizer.hpp"
+#include "match_class.hpp"
 #include "subjob.hpp"
+#include "abstract_syntax_graph.hpp"
 
 namespace parlex {
 
@@ -17,13 +19,13 @@ namespace details {
 class job {
 public:
 	std::u32string const document;
-	dfa const main;
+	recognizer const & main;
 	std::map<match_class, subjob> subjobs;
+	abstract_syntax_graph result;
 
-	job(parser * owner, std::u32string const & document, dfa const & main);
+	job(parser * owner, std::u32string const & document, recognizer const & main);
 	void connect(subjob * dependent, match_class const & match_class, parse_context const & context);
 	void start();
-
 private:
 	friend details::subjob;
 	parser * owner;
