@@ -11,7 +11,7 @@ namespace parlex {
 //simulates a dfa
 class state_machine : public recognizer {
 public:
-	state_machine(dfa d);
+	state_machine(dfa const & d);
 	virtual ~state_machine() = default;
 	void start(details::parse_context const & c) const final;
 private:

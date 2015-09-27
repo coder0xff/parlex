@@ -8,7 +8,7 @@ lib_LTLIBRARIES = libparlex.la
 # Build information for each library
 
 # Sources for libparlex
-libparlex_la_SOURCES = builtins.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
+libparlex_la_SOURCES = builtins.cpp dfa.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
 
 # Linker options libTestProgram
 libparlex_la_LDFLAGS = 

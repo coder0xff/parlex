@@ -32,7 +32,7 @@ private:
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::tuple<std::reference_wrapper<details::parse_context const>, int>> work;
+	std::queue<std::tuple<details::parse_context, int>> work;
 	std::condition_variable work_cv;
 
 	void schedule(details::parse_context const & context, int nextDfaState);

@@ -2,7 +2,7 @@
 
 namespace parlex {
 
-state_machine::state_machine(dfa d) : d(d) {}
+state_machine::state_machine(dfa const & d) : d(d) {}
 
 void state_machine::start(details::parse_context const & c) const {
 	process(c, 0);

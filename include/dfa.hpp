@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "recognizer.hpp"
 
@@ -15,6 +16,8 @@ public:
 	//state 0 is the start state
 	//state N-1 is the accept state, where N is the number of states
 	std::vector<std::map<std::reference_wrapper<recognizer const>, int, details::recognizer_reference_comparer>> function;
+
+	void add_transition(int fromState, recognizer const & recognizer, int toState);
 };
 
 }

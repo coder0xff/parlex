@@ -14,10 +14,10 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 			goto wait;
 			while (!terminating) {
 				{
-					std::tuple<std::reference_wrapper<details::parse_context const>, int> & item = work.front();
+					std::tuple<details::parse_context, int> & item = work.front();
 					work.pop();
 					lock.unlock();
-					auto const & context = std::get<0>(item).get();
+					auto const & context = std::get<0>(item);
 					auto const nextDfaState = std::get<1>(item);
 					context.owner.r.process(context, nextDfaState);
 					if (--activeCount == 0) {

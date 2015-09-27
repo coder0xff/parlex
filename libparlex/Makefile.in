@@ -119,10 +119,10 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libparlex_la_LIBADD =
-am_libparlex_la_OBJECTS = libparlex_la-builtins.lo libparlex_la-job.lo \
-	libparlex_la-parser.lo libparlex_la-recognizer.lo \
-	libparlex_la-state_machine.lo libparlex_la-subjob.lo \
-	libparlex_la-terminal.lo
+am_libparlex_la_OBJECTS = libparlex_la-builtins.lo libparlex_la-dfa.lo \
+	libparlex_la-job.lo libparlex_la-parser.lo \
+	libparlex_la-recognizer.lo libparlex_la-state_machine.lo \
+	libparlex_la-subjob.lo libparlex_la-terminal.lo
 libparlex_la_OBJECTS = $(am_libparlex_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -326,7 +326,7 @@ lib_LTLIBRARIES = libparlex.la
 # Build information for each library
 
 # Sources for libparlex
-libparlex_la_SOURCES = builtins.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
+libparlex_la_SOURCES = builtins.cpp dfa.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
 
 # Linker options libTestProgram
 libparlex_la_LDFLAGS = 
@@ -414,6 +414,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_la-builtins.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_la-dfa.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_la-job.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_la-parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_la-recognizer.Plo@am__quote@
@@ -448,6 +449,13 @@ libparlex_la-builtins.lo: builtins.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='builtins.cpp' object='libparlex_la-builtins.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_la-builtins.lo `test -f 'builtins.cpp' || echo '$(srcdir)/'`builtins.cpp
+
+libparlex_la-dfa.lo: dfa.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_la-dfa.lo -MD -MP -MF $(DEPDIR)/libparlex_la-dfa.Tpo -c -o libparlex_la-dfa.lo `test -f 'dfa.cpp' || echo '$(srcdir)/'`dfa.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libparlex_la-dfa.Tpo $(DEPDIR)/libparlex_la-dfa.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='dfa.cpp' object='libparlex_la-dfa.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_la-dfa.lo `test -f 'dfa.cpp' || echo '$(srcdir)/'`dfa.cpp
 
 libparlex_la-job.lo: job.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_la-job.lo -MD -MP -MF $(DEPDIR)/libparlex_la-job.Tpo -c -o libparlex_la-job.lo `test -f 'job.cpp' || echo '$(srcdir)/'`job.cpp

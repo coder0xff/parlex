@@ -119,10 +119,10 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libparlex_la_LIBADD =
-am_libparlex_la_OBJECTS = libparlex_la-builtins.lo libparlex_la-job.lo \
-	libparlex_la-parser.lo libparlex_la-recognizer.lo \
-	libparlex_la-state_machine.lo libparlex_la-subjob.lo \
-	libparlex_la-terminal.lo
+am_libparlex_la_OBJECTS = libparlex_la-builtins.lo libparlex_la-dfa.lo \
+	libparlex_la-job.lo libparlex_la-parser.lo \
+	libparlex_la-recognizer.lo libparlex_la-state_machine.lo \
+	libparlex_la-subjob.lo libparlex_la-terminal.lo
 libparlex_la_OBJECTS = $(am_libparlex_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -192,13 +192,13 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/brent/parlex/missing aclocal-1.14
+ACLOCAL = ${SHELL} /home/brent/Dropbox/parlex/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/brent/parlex/missing autoconf
-AUTOHEADER = ${SHELL} /home/brent/parlex/missing autoheader
-AUTOMAKE = ${SHELL} /home/brent/parlex/missing automake-1.14
+AUTOCONF = ${SHELL} /home/brent/Dropbox/parlex/missing autoconf
+AUTOHEADER = ${SHELL} /home/brent/Dropbox/parlex/missing autoheader
+AUTOMAKE = ${SHELL} /home/brent/Dropbox/parlex/missing automake-1.14
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -208,7 +208,7 @@ CPPFLAGS =
 CXX = clang++
 CXXCPP = clang++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -O0 -g -std=c++11 -pthread
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"parlex\" -DPACKAGE_TARNAME=\"parlex\" -DPACKAGE_VERSION=\"1.0\" -DPACKAGE_STRING=\"parlex\ 1.0\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"parlex\" -DVERSION=\"1.0\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\"
 DEPDIR = .deps
@@ -235,7 +235,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/brent/parlex/missing makeinfo
+MAKEINFO = ${SHELL} /home/brent/Dropbox/parlex/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -258,10 +258,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 1.0
-abs_builddir = /home/brent/parlex/libparlex
-abs_srcdir = /home/brent/parlex/libparlex
-abs_top_builddir = /home/brent/parlex
-abs_top_srcdir = /home/brent/parlex
+abs_builddir = /home/brent/Dropbox/parlex/libparlex
+abs_srcdir = /home/brent/Dropbox/parlex/libparlex
+abs_top_builddir = /home/brent/Dropbox/parlex
+abs_top_srcdir = /home/brent/Dropbox/parlex
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = 
@@ -291,7 +291,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/brent/parlex/install-sh
+install_sh = ${SHELL} /home/brent/Dropbox/parlex/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -326,7 +326,7 @@ lib_LTLIBRARIES = libparlex.la
 # Build information for each library
 
 # Sources for libparlex
-libparlex_la_SOURCES = builtins.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
+libparlex_la_SOURCES = builtins.cpp dfa.cpp job.cpp parser.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp
 
 # Linker options libTestProgram
 libparlex_la_LDFLAGS = 
@@ -414,6 +414,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/libparlex_la-builtins.Plo
+include ./$(DEPDIR)/libparlex_la-dfa.Plo
 include ./$(DEPDIR)/libparlex_la-job.Plo
 include ./$(DEPDIR)/libparlex_la-parser.Plo
 include ./$(DEPDIR)/libparlex_la-recognizer.Plo
@@ -448,6 +449,13 @@ libparlex_la-builtins.lo: builtins.cpp
 #	$(AM_V_CXX)source='builtins.cpp' object='libparlex_la-builtins.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_la-builtins.lo `test -f 'builtins.cpp' || echo '$(srcdir)/'`builtins.cpp
+
+libparlex_la-dfa.lo: dfa.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_la-dfa.lo -MD -MP -MF $(DEPDIR)/libparlex_la-dfa.Tpo -c -o libparlex_la-dfa.lo `test -f 'dfa.cpp' || echo '$(srcdir)/'`dfa.cpp
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libparlex_la-dfa.Tpo $(DEPDIR)/libparlex_la-dfa.Plo
+#	$(AM_V_CXX)source='dfa.cpp' object='libparlex_la-dfa.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_la-dfa.lo `test -f 'dfa.cpp' || echo '$(srcdir)/'`dfa.cpp
 
 libparlex_la-job.lo: job.cpp
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_la-job.lo -MD -MP -MF $(DEPDIR)/libparlex_la-job.Tpo -c -o libparlex_la-job.lo `test -f 'job.cpp' || echo '$(srcdir)/'`job.cpp

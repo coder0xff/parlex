@@ -10237,7 +10237,7 @@ compiler_lib_search_dirs="/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9 /usr/bin/../l
 predep_objects="/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crti.o /usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/crtbeginS.o"
 postdep_objects="/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/crtendS.o /usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/../../../x86_64-linux-gnu/crtn.o"
 predeps=""
-postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
+postdeps="-lstdc++ -lm -lgcc_s -lpthread -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
