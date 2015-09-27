@@ -23,16 +23,17 @@ public:
 	struct subscription {
 		int next_index;
 		parse_context const context;
-		inline subscription(parse_context const & context) : next_index(0), context(context) {}
+		int next_dfa_state;
+		inline subscription(parse_context const & context, int nextDfaState) : next_index(0), context(context), next_dfa_state(nextDfaState) {}
 	};
 
-	job const & owner;
+	job & owner;
 	recognizer const & r;
 	int document_position;
 	std::atomic<bool> completed;
 	std::list<subscription> subscriptions;
 	std::vector<match> matches;
-	std::map<match, std::set<permutation>> matchToPermutations;
+	std::map<match, std::set<permutation>> match_to_permutations;
 	std::mutex mutex;
 
 	subjob(job & owner, recognizer const & r, int documentPosition);
@@ -41,7 +42,7 @@ public:
 	void on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children);
 	void do_events();
 
-	void add_subscription(parse_context const & context);
+	void add_subscription(parse_context const & context, int nextDfaState);
 	void on_dead_lock();
 	void on_completed();
 };

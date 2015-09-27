@@ -11,13 +11,15 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 	for (; threadCount > 0; --threadCount) {
 		workers.emplace_back([=]() {
 			std::unique_lock<std::mutex> lock(mutex);
-			goto wait;			
+			goto wait;
 			while (!terminating) {
 				{
-					std::function<void ()> item = work.front();
+					std::tuple<std::reference_wrapper<details::parse_context const>, int> & item = work.front();
 					work.pop();
 					lock.unlock();
-					item();
+					auto const & context = std::get<0>(item).get();
+					auto const nextDfaState = std::get<1>(item);
+					context.owner.r.process(context, nextDfaState);
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
 					}
@@ -39,7 +41,7 @@ parser::~parser() {
 }
 
 abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const & document) {
-	details::job j(this, document, r);
+	details::job j(*this, document, r);
 	std::unique_lock<std::mutex> lock(mutex);
 	while (activeCount != 0) {
 		halt_cv.wait(lock);
@@ -50,10 +52,10 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(std::function<void ()> const & f) {
+void parser::schedule(details::parse_context const & context, int nextDfaState) {
 	activeCount++;
 	std::unique_lock<std::mutex> lock(mutex);
-	work.emplace(f);
+	work.emplace(std::make_tuple(context, nextDfaState));
 	work_cv.notify_one();
 }
 
@@ -62,7 +64,7 @@ abstract_syntax_graph parser::construct_result(details::job const & j, details::
 	for (auto const & pair : j.subjobs) {
 		details::match_class const & matchClass = pair.first;
 		details::subjob const & subJob = pair.second;
-		for (auto const & pair2 : subJob.matchToPermutations) {
+		for (auto const & pair2 : subJob.match_to_permutations) {
 			details::match const & match = pair2.first;
 			std::set<permutation> const & permutations = pair2.second;
 			result.table[match] = permutations;

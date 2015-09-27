@@ -10,9 +10,8 @@ public:
 	virtual ~terminal() = default;
 
 	void start(details::parse_context const & c) const final;
-
 	void halt(details::parse_context const & c) const final;
-
+	void inline process(details::parse_context const & c, int s) const final { throw "terminals are not state machines"; }
 	virtual bool test(std::u32string const & document, int documentPosition) const = 0;
 	virtual int get_length() const = 0;
 protected:

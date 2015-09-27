@@ -1,0 +1,1 @@
+SUBDIRS=libparlex include exampleProgram

@@ -27,15 +27,15 @@ private:
 	friend class details::job;
 	friend class details::subjob;
 	std::mutex mutex;
-	std::condition_variable halt_cv;	
+	std::condition_variable halt_cv;
 	std::atomic<int> activeCount;
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::function<void ()>> work;
+	std::queue<std::tuple<std::reference_wrapper<details::parse_context const>, int>> work;
 	std::condition_variable work_cv;
 
-	void schedule(std::function<void ()> const & f);
+	void schedule(details::parse_context const & context, int nextDfaState);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);

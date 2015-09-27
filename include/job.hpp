@@ -21,14 +21,15 @@ public:
 	std::u32string const document;
 	recognizer const & main;
 	std::map<match_class, subjob> subjobs;
+	std::mutex subjobs_mutex;
 	abstract_syntax_graph result;
 
-	job(parser * owner, std::u32string const & document, recognizer const & main);
-	void connect(subjob * dependent, match_class const & match_class, parse_context const & context);
+	job(parser & owner, std::u32string const & document, recognizer const & main);
+	void connect(match_class const & matchClass, parse_context const & context, int nextState);
 	void start();
 private:
 	friend details::subjob;
-	parser * owner;
+	parser & owner;
 };
 
 }

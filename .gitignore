@@ -1,4 +1,13 @@
-/.depend
-*.o
-/parlex.a
-*.a
+Build (GNU)/
+.settings
+.libs/
+.deps/
+**.lo
+**.o
+**.Plo
+**.la
+**.log
+autom4te.cache
+with
+without
+config.status

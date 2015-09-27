@@ -21,10 +21,10 @@ subjob::subjob(
 	document_position(documentPosition)
 { }
 
-void subjob::add_subscription(parse_context const & context) {
+void subjob::add_subscription(parse_context const & context, int nextDfaState) {
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		subscriptions.emplace_back(context);
+		subscriptions.emplace_back(context, nextDfaState);
 	}  //release the lock
 	do_events();
 }
@@ -35,35 +35,33 @@ void subjob::do_events() {
 		if (subscription.context.owner.completed) {
 			continue;
 		}
-		while (subscription.next_index < matchToPermutations.size()) {
+		while (subscription.next_index < match_to_permutations.size()) {
 			auto match = matches[subscription.next_index];
-			subscription.next_index++;			
-			owner.owner.schedule([](){
-				parse_context next = subscription.context;
-				next.current_document_position += match.consumedCharacterCount;
-				subscription.f
-			}); //subscription.context, match);
+			subscription.next_index++;
+			parse_context next = subscription.context.step(match);
+			owner.owner.schedule(next, subscription.next_dfa_state);
 		};
 	}
 }
 
 void subjob::start() {
-	process_state(state_machine->start_state, document_position, std::vector<match>());
+	parse_context context(*this, document_position);
+	r.start(context);
 }
 
 
 
-void subjob::accept(int consumedCharacterCount, std::vector<match> const & children) {
+void subjob::on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children) {
 	bool newMatch = false;
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		match m(match_class(state_machine, document_position), consumedCharacterCount);
-		if (!matchToPermutations.count(m)) {
-			matchToPermutations[m] = std::set<permutation>();
+		match m(match_class(r, document_position), consumedCharacterCount);
+		if (!match_to_permutations.count(m)) {
+			match_to_permutations[m] = std::set<permutation>();
 			matches.push_back(m);
-			newMatch = true;			
+			newMatch = true;
 		}
-		matchToPermutations[m].insert(children);
+		match_to_permutations[m].insert(children);
 	}
 	if (newMatch) {
 		do_events();
