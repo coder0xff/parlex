@@ -1,7 +1,7 @@
 #ifndef RECOGNIZER_HPP
 #define RECOGNIZER_HPP
 
-#include <memory>
+#include <safe_ptr.hpp>
 
 namespace parlex {
 
@@ -28,20 +28,20 @@ public:
 	virtual ~recognizer() = default;
 	// subscribes to a match_class (from r, and the doc position in c)
 	// For each match found in the match_class, "process" is invoked, forwarding "nextDfaState".
-	void on(details::parse_context const & c, recognizer const & r, int nextDfaState) const;
+	void on(safe_ptr<details::parse_context> c, recognizer const & r, int nextDfaState) const;
 
 	// submit a new permutation from c.permutation_builder
-	void accept(details::parse_context const & c) const;
+	void accept(safe_ptr<details::parse_context> c) const;
 
 	// handler invoked when the specified parse_context is starting
-	virtual void start(details::parse_context const & c) const = 0;
+	virtual void start(safe_ptr<details::parse_context> c) const = 0;
 
 	// handler invoked when the specified parse_context will no longer process states
-	virtual void halt(details::parse_context const & c) const;
+	virtual void halt(safe_ptr<details::parse_context> c) const;
 
 	// handler invoked when a subscription has a new match
 	// c.current_document_position and c.permutation_builer are updated
-	virtual void process(details::parse_context const & c, int nextDfaState) const = 0;
+	virtual void process(safe_ptr<details::parse_context> c, int nextDfaState) const = 0;
 };
 
 }

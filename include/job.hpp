@@ -25,7 +25,7 @@ public:
 	abstract_syntax_graph result;
 
 	job(parser & owner, std::u32string const & document, recognizer const & main);
-	void connect(match_class const & matchClass, parse_context const & context, int nextState);
+	void connect(match_class const & matchClass, safe_ptr<parse_context> context, int nextState);
 	void start();
 private:
 	friend details::subjob;

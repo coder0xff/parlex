@@ -20,7 +20,7 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		pair.first->second.start();
 	}
 
-void job::connect(match_class const & matchClass, parse_context const & context, int nextDfaState) {
+void job::connect(match_class const & matchClass, safe_ptr<parse_context> context, int nextDfaState) {
 	subjob * sj = nullptr;
 	{
 		std::unique_lock<std::mutex> lock(subjobs_mutex);

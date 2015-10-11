@@ -21,7 +21,7 @@ subjob::subjob(
 	document_position(documentPosition)
 { }
 
-void subjob::add_subscription(parse_context const & context, int nextDfaState) {
+void subjob::add_subscription(safe_ptr<parse_context> context, int nextDfaState) {
 	{
 		std::unique_lock<std::mutex> lock(mutex);
 		subscriptions.emplace_back(context, nextDfaState);
@@ -32,24 +32,39 @@ void subjob::add_subscription(parse_context const & context, int nextDfaState) {
 void subjob::do_events() {
 	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
-		if (subscription.context.owner.completed) {
+		if (subscription.context->owner.completed) {
 			continue;
 		}
 		while (subscription.next_index < match_to_permutations.size()) {
 			auto match = matches[subscription.next_index];
 			subscription.next_index++;
-			parse_context next = subscription.context.step(match);
+			safe_ptr<parse_context> next = step(subscription.context, match);
 			owner.owner.schedule(next, subscription.next_dfa_state);
 		};
 	}
 }
 
 void subjob::start() {
-	parse_context context(*this, document_position);
-	r.start(context);
+	std::unique_lock<std::mutex> lock(mutex);
+	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, safe_ptr<parse_context>(), document_position, nullptr));
+	r.start(contexts.back());
 }
 
+safe_ptr<parse_context> subjob::step(safe_ptr<const parse_context> prior, match fromTransition) {
+	std::unique_lock<std::mutex> lock(mutex);
+	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, prior, prior->current_document_position + fromTransition.consumed_character_count, &fromTransition));
+	auto result = contexts.back();
+	r.start(result);
+	return result;
+}
 
+safe_ptr<parse_context> subjob::construct_context(int documentPosition) {
+	std::unique_lock<std::mutex> lock(mutex);
+	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, safe_ptr<parse_context>(), documentPosition, nullptr));
+	auto result = contexts.back();
+	r.start(result);
+	return result;
+}
 
 void subjob::on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children) {
 	bool newMatch = false;

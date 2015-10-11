@@ -13,10 +13,10 @@ class state_machine : public recognizer {
 public:
 	state_machine(dfa const & d);
 	virtual ~state_machine() = default;
-	void start(details::parse_context const & c) const final;
+	void start(safe_ptr<details::parse_context> c) const final;
 private:
 	dfa d;
-	void process(details::parse_context const & c, int nextDfaState) const final;
+	void process(safe_ptr<details::parse_context> c, int nextDfaState) const final;
 };
 
 }

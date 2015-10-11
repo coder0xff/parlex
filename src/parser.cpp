@@ -14,12 +14,12 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 			goto wait;
 			while (!terminating) {
 				{
-					std::tuple<details::parse_context, int> & item = work.front();
+					std::tuple<safe_ptr<details::parse_context>, int> & item = work.front();
 					work.pop();
 					lock.unlock();
 					auto const & context = std::get<0>(item);
 					auto const nextDfaState = std::get<1>(item);
-					context.owner.r.process(context, nextDfaState);
+					context->owner.r.process(context, nextDfaState);
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
 					}
@@ -52,9 +52,9 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(details::parse_context const & context, int nextDfaState) {
-	activeCount++;
+void parser::schedule(safe_ptr<details::parse_context> context, int nextDfaState) {
 	std::unique_lock<std::mutex> lock(mutex);
+	activeCount++;
 	work.emplace(std::make_tuple(context, nextDfaState));
 	work_cv.notify_one();
 }
@@ -74,7 +74,11 @@ abstract_syntax_graph parser::construct_result(details::job const & j, details::
 }
 
 bool parser::handle_deadlocks(details::job const & j) {
+	std::unique_lock<std::mutex> lock(mutex);
 	assert(activeCount == 0);
+	//todo
+	//build a dependency graph and detect cyclical portions that should be halted
+	//if no subjobs remain, return true
 	return true;
 }
 

@@ -22,27 +22,31 @@ class subjob {
 public:
 	struct subscription {
 		int next_index;
-		parse_context const context;
+		safe_ptr<parse_context> const context;
 		int next_dfa_state;
-		inline subscription(parse_context const & context, int nextDfaState) : next_index(0), context(context), next_dfa_state(nextDfaState) {}
+		inline subscription(safe_ptr<parse_context> const context, int const nextDfaState) : next_index(0), context(context), next_dfa_state(nextDfaState) {}
 	};
 
 	job & owner;
 	recognizer const & r;
-	int document_position;
+	int const document_position;
 	std::atomic<bool> completed;
 	std::list<subscription> subscriptions;
 	std::vector<match> matches;
+	std::vector<safe_ptr<parse_context>> contexts;
 	std::map<match, std::set<permutation>> match_to_permutations;
 	std::mutex mutex;
 
-	subjob(job & owner, recognizer const & r, int documentPosition);
+	subjob(job & owner, recognizer const & r, int const documentPosition);
 	subjob(subjob const & other) = delete;
 	void start();
-	void on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children);
+	safe_ptr<parse_context> step(safe_ptr<parse_context const> const prior, match const fromTransition);
+	safe_ptr<parse_context> construct_context(int const documentPosition);
+
+	void on_recognizer_accepted(int const charCount, std::vector<match> const & children);
 	void do_events();
 
-	void add_subscription(parse_context const & context, int nextDfaState);
+	void add_subscription(safe_ptr<parse_context> const context, int const nextDfaState);
 	void on_dead_lock();
 	void on_completed();
 };

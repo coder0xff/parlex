@@ -32,10 +32,10 @@ private:
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::tuple<details::parse_context, int>> work;
+	std::queue<std::tuple<safe_ptr<details::parse_context>, int>> work;
 	std::condition_variable work_cv;
 
-	void schedule(details::parse_context const & context, int nextDfaState);
+	void schedule(safe_ptr<details::parse_context> context, int nextDfaState);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);

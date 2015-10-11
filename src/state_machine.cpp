@@ -1,14 +1,15 @@
 #include "state_machine.hpp"
+#include "parse_context.hpp"
 
 namespace parlex {
 
 state_machine::state_machine(dfa const & d) : d(d) {}
 
-void state_machine::start(details::parse_context const & c) const {
+void state_machine::start(safe_ptr<details::parse_context> c) const {
 	process(c, 0);
 }
 
-void state_machine::process(details::parse_context const & c, int s) const {
+void state_machine::process(safe_ptr<details::parse_context> c, int s) const {
 	if (s == d.function.size() - 1) {
 		accept(c);
 	}
