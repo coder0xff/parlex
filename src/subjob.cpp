@@ -23,14 +23,14 @@ subjob::subjob(
 
 void subjob::add_subscription(safe_ptr<parse_context> context, int nextDfaState) {
 	{
-		std::unique_lock<std::mutex> lock(mutex);
+		std::unique_lock<std::recursive_mutex> lock(mutex);
 		subscriptions.emplace_back(context, nextDfaState);
 	}  //release the lock
 	do_events();
 }
 
 void subjob::do_events() {
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock<std::recursive_mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
 		if (subscription.context->owner.completed) {
 			continue;
@@ -45,22 +45,14 @@ void subjob::do_events() {
 }
 
 void subjob::start() {
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock<std::recursive_mutex> lock(mutex);
 	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, safe_ptr<parse_context>(), document_position, nullptr));
 	r.start(contexts.back());
 }
 
 safe_ptr<parse_context> subjob::step(safe_ptr<const parse_context> prior, match fromTransition) {
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock<std::recursive_mutex> lock(mutex);
 	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, prior, prior->current_document_position + fromTransition.consumed_character_count, &fromTransition));
-	auto result = contexts.back();
-	r.start(result);
-	return result;
-}
-
-safe_ptr<parse_context> subjob::construct_context(int documentPosition) {
-	std::unique_lock<std::mutex> lock(mutex);
-	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, safe_ptr<parse_context>(), documentPosition, nullptr));
 	auto result = contexts.back();
 	r.start(result);
 	return result;
@@ -69,7 +61,7 @@ safe_ptr<parse_context> subjob::construct_context(int documentPosition) {
 void subjob::on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children) {
 	bool newMatch = false;
 	{
-		std::unique_lock<std::mutex> lock(mutex);
+		std::unique_lock<std::recursive_mutex> lock(mutex);
 		match m(match_class(r, document_position), consumedCharacterCount);
 		if (!match_to_permutations.count(m)) {
 			match_to_permutations[m] = std::set<permutation>();

@@ -33,6 +33,8 @@ public:
 	// submit a new permutation from c.permutation_builder
 	void accept(safe_ptr<details::parse_context> c) const;
 
+	void accept(safe_ptr<details::parse_context> prior, int consumedCharacterCount) const;
+	
 	// handler invoked when the specified parse_context is starting
 	virtual void start(safe_ptr<details::parse_context> c) const = 0;
 

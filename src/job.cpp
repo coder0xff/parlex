@@ -12,7 +12,6 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		main(main),
 		result(match(match_class(main, 0), document.size()))
 	{
-		std::unique_lock<std::mutex> lock;
 		auto pair = subjobs.emplace(
 			std::piecewise_construct,
 			std::forward_as_tuple(match_class(main, 0)),

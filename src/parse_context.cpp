@@ -19,7 +19,7 @@ parse_context::parse_context(subjob & owner, safe_ptr<parse_context const> const
 			from_transition(from_transition ? new match(*from_transition) : nullptr)
 	{
 		assert(&owner);
-		assert((bool)prior == (bool)from_transition);
+		assert((bool)prior.get() == (bool)from_transition);
 	}
 
 	std::vector<match> parse_context::result() const {

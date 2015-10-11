@@ -38,7 +38,9 @@ class safe_ptr {
 	ref_counter * rc;
 
 	safe_ptr(ref_counter * const rc) : is_owner(false), rc(rc) {
-		rc->inc();
+		if (rc) {
+			rc->inc();
+		}
 	}
 
 	template<typename U>
@@ -53,16 +55,21 @@ public:
 		return result;
 	}
 
-	safe_ptr(safe_ptr const & other) : is_owner(false), rc(other.rc) {
-		rc->inc();
+	safe_ptr(safe_ptr const & other) : is_owner(false), rc(nullptr) {
+		if (other.rc == nullptr) {
+			assert(!other.is_owner);
+		} else {
+			rc = other.rc;
+			rc->inc();
+		}
 	}
 
-	safe_ptr(safe_ptr && move) : is_owner(true), rc(0) {
+	safe_ptr(safe_ptr && move) : is_owner(false), rc(nullptr) {
 		std::swap(is_owner, move.is_owner);
 		std::swap(rc, move.rc);
 	}
 
-	safe_ptr() : is_owner(true), rc(new ref_counter(nullptr)) {}
+	safe_ptr() : is_owner(false), rc(nullptr) {}
 
 	safe_ptr & operator =(safe_ptr const& rhs) {
 		safe_ptr copy = rhs;
@@ -75,6 +82,7 @@ public:
 		if (rc) {
 			if (is_owner) {			
 				T* obj = (T*)rc->underlying.exchange(nullptr);
+				assert(obj);
 				delete obj;
 			}
 			rc->dec();
@@ -82,12 +90,17 @@ public:
 	}
 
 	T& operator *() const {
-		return *(T*)rc->underlying;
+		assert(rc);
+		void *ptr_copy = rc->underlying;
+		assert(ptr_copy);
+		return *(T*)ptr_copy;
 	}
 
 	T* operator ->() const {
-		assert(rc->underlying);
-		return (T*)(void*)rc->underlying;
+		assert(rc);
+		void *ptr_copy = rc->underlying;
+		assert(ptr_copy);
+		return (T*)ptr_copy;
 	}
 
 	operator safe_ptr<T const>() const {
@@ -95,8 +108,22 @@ public:
 	}
 
 	operator bool() const {
-		assert(rc->underlying || is_owner);
-		return rc->underlying;
+		if (!rc) {
+			return false;
+		} else {
+			assert(rc->underlying);
+			return true;
+		}
+	}
+
+	T* get() const {
+		if (!rc) {
+			return nullptr;
+		} else {
+			void *ptr_copy = rc->underlying;
+			assert(ptr_copy);
+			return (T*)ptr_copy;
+		}
 	}
 };
 

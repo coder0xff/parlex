@@ -13,6 +13,13 @@ void recognizer::accept(safe_ptr<details::parse_context> c) const {
 	c->owner.on_recognizer_accepted(c->current_document_position - c->owner.document_position, c->result());
 }
 
+void recognizer::accept(safe_ptr<details::parse_context> prior, int consumedCharacterCount) const {
+	prior->owner.on_recognizer_accepted(
+		prior->current_document_position + consumedCharacterCount,
+		std::vector<details::match>()
+	);
+}
+
 //hook up an event handler
 void recognizer::on(safe_ptr<details::parse_context> c, recognizer const & r, int nextDfaState) const {
 	c->owner.owner.connect(details::match_class(r, c->current_document_position), c, nextDfaState);

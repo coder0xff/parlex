@@ -35,13 +35,12 @@ public:
 	std::vector<match> matches;
 	std::vector<safe_ptr<parse_context>> contexts;
 	std::map<match, std::set<permutation>> match_to_permutations;
-	std::mutex mutex;
+	std::recursive_mutex mutex;
 
 	subjob(job & owner, recognizer const & r, int const documentPosition);
 	subjob(subjob const & other) = delete;
 	void start();
 	safe_ptr<parse_context> step(safe_ptr<parse_context const> const prior, match const fromTransition);
-	safe_ptr<parse_context> construct_context(int const documentPosition);
 
 	void on_recognizer_accepted(int const charCount, std::vector<match> const & children);
 	void do_events();
