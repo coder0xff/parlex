@@ -1,80 +1,49 @@
-#include "subjob.hpp"
-
+#include <iostream>
 #include <string>
 
-#include "parse_context.hpp"
+#include "subjob.hpp"
+#include "context.hpp"
 #include "job.hpp"
 #include "recognizer.hpp"
 #include "parser.hpp"
+#include "state_machine.hpp"
 
 namespace parlex {
 namespace details {
 
 subjob::subjob(
 	job & owner,
-	recognizer const & r,
+	state_machine const & machine,
 	int documentPosition
 ):
-	owner(owner),
-	r(r),
-	completed(0),
-	document_position(documentPosition)
-{ }
-
-void subjob::add_subscription(safe_ptr<parse_context> context, int nextDfaState) {
-	{
-		std::unique_lock<std::recursive_mutex> lock(mutex);
-		subscriptions.emplace_back(context, nextDfaState);
-	}  //release the lock
-	do_events();
-}
-
-void subjob::do_events() {
-	std::unique_lock<std::recursive_mutex> lock(mutex);
-	for (auto & subscription : subscriptions) {
-		if (subscription.context->owner.completed) {
-			continue;
-		}
-		while (subscription.next_index < match_to_permutations.size()) {
-			auto match = matches[subscription.next_index];
-			subscription.next_index++;
-			safe_ptr<parse_context> next = step(subscription.context, match);
-			owner.owner.schedule(next, subscription.next_dfa_state);
-		};
-	}
+	producer(owner, machine, documentPosition),
+	machine(machine)
+{ 
+	std::cout << "started a subjob at " << documentPosition << " using " << std::endl;
 }
 
 void subjob::start() {
 	std::unique_lock<std::recursive_mutex> lock(mutex);
-	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, safe_ptr<parse_context>(), document_position, nullptr));
-	r.start(contexts.back());
+	contexts.emplace_back(*this, context(), document_position, nullptr);
+	machine.start(*this, document_position);
 }
 
-safe_ptr<parse_context> subjob::step(safe_ptr<const parse_context> prior, match fromTransition) {
+context subjob::construct_context(int documentPosition) {
 	std::unique_lock<std::recursive_mutex> lock(mutex);
-	contexts.emplace_back(safe_ptr<parse_context>::construct(*this, prior, prior->current_document_position + fromTransition.consumed_character_count, &fromTransition));
+	contexts.emplace_back(*this, context(), documentPosition, nullptr);
+	return contexts.back();
+}
+
+context subjob::step(context const prior, match fromTransition) {
+	std::unique_lock<std::recursive_mutex> lock(mutex);
+	contexts.emplace_back(*this, prior, prior.current_document_position() + fromTransition.consumed_character_count, &fromTransition);
 	auto result = contexts.back();
-	r.start(result);
 	return result;
 }
 
-void subjob::on_recognizer_accepted(int consumedCharacterCount, std::vector<match> const & children) {
-	bool newMatch = false;
-	{
-		std::unique_lock<std::recursive_mutex> lock(mutex);
-		match m(match_class(r, document_position), consumedCharacterCount);
-		if (!match_to_permutations.count(m)) {
-			match_to_permutations[m] = std::set<permutation>();
-			matches.push_back(m);
-			newMatch = true;
-		}
-		match_to_permutations[m].insert(children);
-	}
-	if (newMatch) {
-		do_events();
-	}
+void subjob::on(context const c, recognizer const & r, int nextDfaState) {
+	owner.connect(details::match_class(r, c.current_document_position()), c, nextDfaState);
 }
-
 
 }
 }

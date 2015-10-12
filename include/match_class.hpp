@@ -11,12 +11,11 @@ struct match_class {
 	recognizer const & r;
 	int document_position;
 
-	inline match_class(recognizer const & r, int documentPosition) : r(r), document_position(documentPosition) {}
+	match_class(recognizer const & r, int documentPosition);
+	match_class(match_class const & other) = default;
+	match_class(match_class&& move) = default;
 
-	inline bool operator <(match_class const & rhs) const {
-		return document_position < rhs.document_position || 
-			(document_position == rhs.document_position && &r < &rhs.r);
-	}
+	bool operator <(match_class const & rhs) const;
 };
 
 }

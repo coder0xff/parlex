@@ -14,7 +14,8 @@ namespace details {
 
 class job;
 class subjob;
-struct parse_context;
+class producer;
+struct context;
 
 }
 
@@ -26,16 +27,17 @@ public:
 private:
 	friend class details::job;
 	friend class details::subjob;
+	friend class details::producer;
 	std::mutex mutex;
 	std::condition_variable halt_cv;
 	std::atomic<int> activeCount;
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::tuple<safe_ptr<details::parse_context>, int>> work;
+	std::queue<std::tuple<details::context, int>> work;
 	std::condition_variable work_cv;
 
-	void schedule(safe_ptr<details::parse_context> context, int nextDfaState);
+	void schedule(details::context context, int nextDfaState);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);

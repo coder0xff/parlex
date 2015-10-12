@@ -1,7 +1,9 @@
+#include "state_machine.hpp"
 #include "job.hpp"
 #include "terminal.hpp"
-#include "parse_context.hpp"
+#include "context.hpp"
 #include "parser.hpp"
+#include "token.hpp"
 
 namespace parlex {
 namespace details {
@@ -12,30 +14,33 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		main(main),
 		result(match(match_class(main, 0), document.size()))
 	{
-		auto pair = subjobs.emplace(
-			std::piecewise_construct,
-			std::forward_as_tuple(match_class(main, 0)),
-			std::forward_as_tuple(*this, main, 0));
-		pair.first->second.start();
+		auto & producer = get_producer(match_class(main, 0));
 	}
 
-void job::connect(match_class const & matchClass, safe_ptr<parse_context> context, int nextDfaState) {
-	subjob * sj = nullptr;
-	{
-		std::unique_lock<std::mutex> lock(subjobs_mutex);
-		// get or insert the subjob for matchClass
-		auto pair = subjobs.emplace(
-			std::piecewise_construct,
-			std::forward_as_tuple(matchClass),
-			std::forward_as_tuple(*this, matchClass.r, matchClass.document_position));
-		// start it if inserted
-		if (pair.second) {
-			pair.first->second.start();
-		}
-		sj = &pair.first->second;
-	}
-	sj->add_subscription(context, nextDfaState);
+
+
+void job::connect(match_class const & matchClass, context c, int nextDfaState) {
+	get_producer(matchClass).add_subscription(c, nextDfaState);
 }
+
+producer & job::get_producer(match_class const & matchClass) {
+	std::unique_lock<std::mutex> lock(producers_mutex);
+	if (producers.count(matchClass)) {
+		return *producers[matchClass];
+	} else {
+		producer * result = nullptr;
+		if (matchClass.r.is_terminal()) {
+			terminal const * t = static_cast<terminal const *>(&matchClass.r);
+			result = new token(*this, *t, matchClass.document_position);
+		} else {
+			state_machine const * machine = static_cast<state_machine const *>(&matchClass.r);
+			result = new subjob(*this, *machine, matchClass.document_position);
+		}
+		//producers.emplace_back(std::piecewise_construct, std::forward_as_tuple(matchClass), std::forward_as_tuple(result));
+		return *result;
+	}
+}
+
 
 }
 }

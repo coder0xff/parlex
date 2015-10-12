@@ -11,43 +11,32 @@
 #include "match.hpp"
 #include "permutation.hpp"
 #include "dfa.hpp"
-#include "parse_context.hpp"
+#include "context.hpp"
+#include "producer.hpp"
 
 namespace parlex {
+
+class state_machine;
+
 namespace details {
 
 class job;
 
-class subjob {
+class subjob : public producer {
 public:
-	struct subscription {
-		int next_index;
-		safe_ptr<parse_context> const context;
-		int next_dfa_state;
-		inline subscription(safe_ptr<parse_context> const context, int const nextDfaState) : next_index(0), context(context), next_dfa_state(nextDfaState) {}
-	};
-
-	job & owner;
-	recognizer const & r;
-	int const document_position;
-	std::atomic<bool> completed;
-	std::list<subscription> subscriptions;
-	std::vector<match> matches;
-	std::vector<safe_ptr<parse_context>> contexts;
-	std::map<match, std::set<permutation>> match_to_permutations;
+	state_machine const & machine;
+	std::vector<context> contexts;
 	std::recursive_mutex mutex;
 
-	subjob(job & owner, recognizer const & r, int const documentPosition);
+	subjob(job & owner, state_machine const & machine, int const documentPosition);
 	subjob(subjob const & other) = delete;
+	subjob(subjob&& move) = default;
+
 	void start();
-	safe_ptr<parse_context> step(safe_ptr<parse_context const> const prior, match const fromTransition);
-
-	void on_recognizer_accepted(int const charCount, std::vector<match> const & children);
-	void do_events();
-
-	void add_subscription(safe_ptr<parse_context> const context, int const nextDfaState);
-	void on_dead_lock();
-	void on_completed();
+	context step(context const prior, match const fromTransition);
+	void on(context const c, recognizer const & r, int nextDfaState);
+	context construct_context(int documentPosition);
+	void handle_halt();
 };
 
 }

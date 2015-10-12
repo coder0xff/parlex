@@ -2,8 +2,9 @@
 
 #include "parser.hpp"
 #include "job.hpp"
-#include "parse_context.hpp"
+#include "context.hpp"
 #include "permutation.hpp"
+#include "state_machine.hpp"
 
 namespace parlex {
 
@@ -14,12 +15,12 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 			goto wait;
 			while (!terminating) {
 				{
-					std::tuple<safe_ptr<details::parse_context>, int> & item = work.front();
+					std::tuple<details::context, int> & item = work.front();
 					work.pop();
 					lock.unlock();
 					auto const & context = std::get<0>(item);
 					auto const nextDfaState = std::get<1>(item);
-					context->owner.r.process(context, nextDfaState);
+					context.owner().machine.process(context, nextDfaState);
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
 					}
@@ -52,23 +53,23 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(safe_ptr<details::parse_context> context, int nextDfaState) {
+void parser::schedule(details::context context, int nextDfaState) {
 	/*
 	std::unique_lock<std::mutex> lock(mutex);
 	activeCount++;
 	work.emplace(std::make_tuple(context, nextDfaState));
 	work_cv.notify_one();
 	/*/
-	context->owner.r.process(context, nextDfaState);
+	context.owner().machine.process(context, nextDfaState);
 	//*/
 }
 
 abstract_syntax_graph parser::construct_result(details::job const & j, details::match const & match) {
 	abstract_syntax_graph result(match);
-	for (auto const & pair : j.subjobs) {
+	for (auto const & pair : j.producers) {
 		details::match_class const & matchClass = pair.first;
-		details::subjob const & subJob = pair.second;
-		for (auto const & pair2 : subJob.match_to_permutations) {
+		details::producer const & producer = *pair.second;
+		for (auto const & pair2 : producer.match_to_permutations) {
 			details::match const & match = pair2.first;
 			std::set<permutation> const & permutations = pair2.second;
 			result.table[match] = permutations;

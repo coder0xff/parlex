@@ -1,19 +1,16 @@
 #include "terminal.hpp"
 
-#include "parse_context.hpp"
+#include "context.hpp"
 #include "subjob.hpp"
 #include "job.hpp"
+#include "token.hpp"
 
 namespace parlex {
 
-void terminal::start(safe_ptr<details::parse_context> c) const {
-	if (test(c->owner.owner.document, c->current_document_position)) {
-		accept(c, get_length());
+void terminal::start(details::job const & j, details::token & t, int documentPosition) const {
+	if (test(j.document, documentPosition)) {
+		t.add_result(get_length(), std::vector<details::match>());
 	}
-}
-
-void terminal::halt(safe_ptr<details::parse_context> c) const {
-	recognizer::halt(c);
 }
 
 }
