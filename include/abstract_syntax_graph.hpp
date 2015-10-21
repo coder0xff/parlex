@@ -3,6 +3,7 @@
 
 #include <map>
 #include <set>
+#include <string>
 
 #include "match.hpp"
 #include "permutation.hpp"
@@ -13,6 +14,7 @@ struct abstract_syntax_graph {
 	inline abstract_syntax_graph(details::match root) : root(root) {}
 	std::map<details::match, std::set<permutation>> table;
 	details::match root;
+	std::string to_dot() const;
 };
 
 }

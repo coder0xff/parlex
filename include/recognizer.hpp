@@ -1,6 +1,8 @@
 #ifndef RECOGNIZER_HPP
 #define RECOGNIZER_HPP
 
+#include <string>
+
 namespace parlex {
 
 class recognizer;
@@ -25,6 +27,7 @@ class recognizer {
 public:
 	virtual ~recognizer() = default;
 	inline virtual bool is_terminal() const { return false; }
+	virtual std::string get_id() const = 0;
 };
 
 }

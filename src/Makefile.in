@@ -95,9 +95,9 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libparlex_a_AR = $(AR) $(ARFLAGS)
 libparlex_a_LIBADD =
-am_libparlex_a_OBJECTS = libparlex_a-builtins.$(OBJEXT) \
-	libparlex_a-dfa.$(OBJEXT) libparlex_a-job.$(OBJEXT) \
-	libparlex_a-context.$(OBJEXT) \
+am_libparlex_a_OBJECTS = libparlex_a-abstract_syntax_graph.$(OBJEXT) \
+	libparlex_a-builtins.$(OBJEXT) libparlex_a-dfa.$(OBJEXT) \
+	libparlex_a-job.$(OBJEXT) libparlex_a-context.$(OBJEXT) \
 	libparlex_a-match_class.$(OBJEXT) libparlex_a-parser.$(OBJEXT) \
 	libparlex_a-producer.$(OBJEXT) \
 	libparlex_a-recognizer.$(OBJEXT) \
@@ -257,7 +257,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libparlex.a
-libparlex_a_SOURCES = builtins.cpp dfa.cpp job.cpp context.cpp match_class.cpp parser.cpp producer.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp token.cpp
+libparlex_a_SOURCES = abstract_syntax_graph.cpp builtins.cpp dfa.cpp job.cpp context.cpp match_class.cpp parser.cpp producer.cpp recognizer.cpp state_machine.cpp subjob.cpp terminal.cpp token.cpp
 libparlex_a_CPPFLAGS = -std=c++11 -I../../include
 all: all-am
 
@@ -308,6 +308,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_a-abstract_syntax_graph.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_a-builtins.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_a-context.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libparlex_a-dfa.Po@am__quote@
@@ -334,6 +335,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+libparlex_a-abstract_syntax_graph.o: abstract_syntax_graph.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_a-abstract_syntax_graph.o -MD -MP -MF $(DEPDIR)/libparlex_a-abstract_syntax_graph.Tpo -c -o libparlex_a-abstract_syntax_graph.o `test -f 'abstract_syntax_graph.cpp' || echo '$(srcdir)/'`abstract_syntax_graph.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libparlex_a-abstract_syntax_graph.Tpo $(DEPDIR)/libparlex_a-abstract_syntax_graph.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='abstract_syntax_graph.cpp' object='libparlex_a-abstract_syntax_graph.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_a-abstract_syntax_graph.o `test -f 'abstract_syntax_graph.cpp' || echo '$(srcdir)/'`abstract_syntax_graph.cpp
+
+libparlex_a-abstract_syntax_graph.obj: abstract_syntax_graph.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_a-abstract_syntax_graph.obj -MD -MP -MF $(DEPDIR)/libparlex_a-abstract_syntax_graph.Tpo -c -o libparlex_a-abstract_syntax_graph.obj `if test -f 'abstract_syntax_graph.cpp'; then $(CYGPATH_W) 'abstract_syntax_graph.cpp'; else $(CYGPATH_W) '$(srcdir)/abstract_syntax_graph.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libparlex_a-abstract_syntax_graph.Tpo $(DEPDIR)/libparlex_a-abstract_syntax_graph.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='abstract_syntax_graph.cpp' object='libparlex_a-abstract_syntax_graph.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libparlex_a-abstract_syntax_graph.obj `if test -f 'abstract_syntax_graph.cpp'; then $(CYGPATH_W) 'abstract_syntax_graph.cpp'; else $(CYGPATH_W) '$(srcdir)/abstract_syntax_graph.cpp'; fi`
 
 libparlex_a-builtins.o: builtins.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparlex_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libparlex_a-builtins.o -MD -MP -MF $(DEPDIR)/libparlex_a-builtins.Tpo -c -o libparlex_a-builtins.o `test -f 'builtins.cpp' || echo '$(srcdir)/'`builtins.cpp

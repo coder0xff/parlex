@@ -25,7 +25,7 @@ public:
 	abstract_syntax_graph result;
 
 	job(parser & owner, std::u32string const & document, recognizer const & main);
-	void connect(match_class const & matchClass, context context, int nextState);
+	void connect(match_class const & matchClass, context const & c, int nextState);
 private:
 	producer & get_producer(match_class const & matchClass);
 	parser & owner;

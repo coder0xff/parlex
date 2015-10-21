@@ -11,6 +11,10 @@ int any_character_t::get_length() const {
 	return 1;
 }
 
+std::string any_character_t::get_id() const {
+	return "any_character";
+}
+
 }
 
 details::any_character_t any_character;

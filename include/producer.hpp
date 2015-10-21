@@ -23,7 +23,7 @@ class producer {
 		int next_index;
 		context const c;
 		int next_dfa_state;
-		inline subscription(context const c, int const nextDfaState) : next_index(0), c(c), next_dfa_state(nextDfaState) {}
+		inline subscription(context const & c, int const nextDfaState) : next_index(0), c(c), next_dfa_state(nextDfaState) {}
 	};
 
 	void do_events();
@@ -37,14 +37,14 @@ private:
 	std::list<subscription> subscriptions;
 	std::vector<match> matches;
 	std::map<match, std::set<permutation>> match_to_permutations;
-	std::recursive_mutex mutex;
+	std::mutex mutex;
 	friend class parlex::parser;
 protected:
 	producer(job & owner, recognizer const & r, int const documentPosition);
 
 public:
 	void add_result(int consumedCharacterCount, std::vector<details::match> const & children);
-	void add_subscription(context const context, int const nextDfaState);
+	void add_subscription(context const & c, int const nextDfaState);
 };
 
 }

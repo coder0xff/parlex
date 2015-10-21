@@ -14,16 +14,16 @@ producer::producer(job & owner, recognizer const & r, int const documentPosition
 	document_position(documentPosition) {}
 
 
-void producer::add_subscription(context context, int nextDfaState) {
+void producer::add_subscription(context const & c, int nextDfaState) {
 	{
-		std::unique_lock<std::recursive_mutex> lock(mutex);
-		subscriptions.emplace_back(context, nextDfaState);
+		std::unique_lock<std::mutex> lock(mutex);
+		subscriptions.emplace_back(c, nextDfaState);
 	}  //release the lock
 	do_events();
 }
 
 void producer::do_events() {
-	std::unique_lock<std::recursive_mutex> lock(mutex);
+	std::unique_lock<std::mutex> lock(mutex);
 	for (auto & subscription : subscriptions) {
 		if (subscription.c.owner().completed) {
 			continue;
@@ -41,7 +41,7 @@ void producer::add_result(int consumedCharacterCount, std::vector<details::match
 	//std::cout << "found permutation at " << (document_position) << " consuming " << consumedCharacterCount << std::endl;
 	bool newMatch = false;
 	{
-		std::unique_lock<std::recursive_mutex> lock(mutex);
+		std::unique_lock<std::mutex> lock(mutex);
 		match m(match_class(r, document_position), consumedCharacterCount);
 		if (!match_to_permutations.count(m)) {
 			match_to_permutations[m] = std::set<permutation>();

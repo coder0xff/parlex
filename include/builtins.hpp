@@ -11,6 +11,7 @@ public:
 	virtual ~any_character_t() = default;
 	virtual bool test(std::u32string const & document, int documentPosition) const;
 	virtual int get_length() const;
+	virtual std::string get_id() const;
 };
 
 }

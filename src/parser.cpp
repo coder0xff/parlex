@@ -53,14 +53,14 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(details::context context, int nextDfaState) {
+void parser::schedule(details::context const & c, int nextDfaState) {
 	/*
 	std::unique_lock<std::mutex> lock(mutex);
 	activeCount++;
 	work.emplace(std::make_tuple(context, nextDfaState));
 	work_cv.notify_one();
 	/*/
-	context.owner().machine.process(context, nextDfaState);
+	c.owner().machine.process(c, nextDfaState);
 	//*/
 }
 

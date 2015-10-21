@@ -37,7 +37,7 @@ private:
 	std::queue<std::tuple<details::context, int>> work;
 	std::condition_variable work_cv;
 
-	void schedule(details::context context, int nextDfaState);
+	void schedule(details::context const & c, int nextDfaState);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);
