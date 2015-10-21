@@ -23,8 +23,10 @@ subjob::subjob(
 }
 
 void subjob::start() {
-	std::unique_lock<std::mutex> lock(mutex);
-	contexts.emplace_back(*this, context(), document_position, nullptr);
+	{
+		std::unique_lock<std::mutex> lock(mutex);
+		contexts.emplace_back(*this, context(), document_position, nullptr);
+	}
 	machine.start(*this, document_position);
 }
 
