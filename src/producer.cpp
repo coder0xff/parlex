@@ -31,7 +31,7 @@ void producer::do_events() {
 		while (subscription.next_index < match_to_permutations.size()) {
 			auto match = matches[subscription.next_index];
 			subscription.next_index++;
-			context next = ((subjob*)this)->step(subscription.c, match);
+			context next = subscription.c.owner().step(subscription.c, match);
 			owner.owner.schedule(next, subscription.next_dfa_state);
 		};
 	}
