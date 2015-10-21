@@ -32,7 +32,7 @@ void subjob::start() {
 
 context subjob::construct_context(int documentPosition) {
 	std::unique_lock<std::mutex> lock(mutex);
-	contexts.emplace_back(*this, context(), documentPosition, nullptr);
+	contexts.emplace_back(*this, context(), document_position, nullptr);
 	return contexts.back();
 }
 
