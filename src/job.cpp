@@ -27,17 +27,33 @@ producer & job::get_producer(match_class const & matchClass) {
 	if (producers.count(matchClass)) {
 		return *producers[matchClass];
 	} else {
-		producer * result = nullptr;
+		lock.unlock();
 		if (matchClass.r.is_terminal()) {
 			terminal const * t = static_cast<terminal const *>(&matchClass.r);
-			result = new token(*this, *t, matchClass.document_position);
+			token * result = new token(*this, *t, matchClass.document_position);
+			lock.lock();
+			producers.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(matchClass),
+				std::forward_as_tuple(result)
+			);
 		} else {
 			state_machine const * machine = static_cast<state_machine const *>(&matchClass.r);
-			result = new subjob(*this, *machine, matchClass.document_position);
+			subjob * result = new subjob(*this, *machine, matchClass.document_position);
+			lock.lock();
+			auto didEmplace = producers.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(matchClass),
+				std::forward_as_tuple(result)
+			).second;
+			lock.unlock();
+			if (didEmplace) {
+				result->start();
+			}
+			lock.lock();
 		}
-		//producers.emplace_back(std::piecewise_construct, std::forward_as_tuple(matchClass), std::forward_as_tuple(result));
-		return *result;
 	}
+	return *producers[matchClass];
 }
 
 
