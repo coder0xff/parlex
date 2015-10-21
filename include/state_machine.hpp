@@ -22,9 +22,9 @@ private:
 	friend class parser;
 	std::string id;
 	dfa d;
-	void process(details::context const & c, int dfaState) const;
-	void on(details::context const & c, recognizer const & r, int nextDfaState) const;
-	void accept(details::context const & c) const;
+	void process(details::context_ref const & c, int dfaState) const;
+	void on(details::context_ref const & c, recognizer const & r, int nextDfaState) const;
+	void accept(details::context_ref const & c) const;
 };
 
 }

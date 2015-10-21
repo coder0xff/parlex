@@ -25,25 +25,24 @@ subjob::subjob(
 void subjob::start() {
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		contexts.emplace_back(*this, context(), document_position, nullptr);
+		contexts.emplace_back(*this, context_ref(), document_position, nullptr);
 	}
 	machine.start(*this, document_position);
 }
 
-context subjob::construct_context(int documentPosition) {
+context_ref subjob::construct_context(int documentPosition) {
 	std::unique_lock<std::mutex> lock(mutex);
-	contexts.emplace_back(*this, context(), document_position, nullptr);
-	return contexts.back();
+	contexts.emplace_back(*this, context_ref(), document_position, nullptr);
+	return contexts.back().get_ref();
 }
 
-context subjob::step(context const & prior, match fromTransition) {
+context_ref subjob::step(context_ref const & prior, match fromTransition) {
 	std::unique_lock<std::mutex> lock(mutex);
 	contexts.emplace_back(*this, prior, prior.current_document_position() + fromTransition.consumed_character_count, &fromTransition);
-	auto result = contexts.back();
-	return result;
+	return contexts.back().get_ref();
 }
 
-void subjob::on(context const & c, recognizer const & r, int nextDfaState) {
+void subjob::on(context_ref const & c, recognizer const & r, int nextDfaState) {
 	owner.connect(details::match_class(r, c.current_document_position()), c, nextDfaState);
 }
 

@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 
 #include "parser.hpp"
 #include "job.hpp"
@@ -15,7 +16,7 @@ parser::parser(int threadCount) : activeCount(0), terminating(false) {
 			goto wait;
 			while (!terminating) {
 				{
-					std::tuple<details::context, int> & item = work.front();
+					std::tuple<details::context_ref, int> & item = work.front();
 					work.pop();
 					lock.unlock();
 					auto const & context = std::get<0>(item);
@@ -53,14 +54,16 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 	return construct_result(j, details::match(details::match_class(r, 0), document.size()));
 }
 
-void parser::schedule(details::context const & c, int nextDfaState) {
+void parser::schedule(details::context_ref const & c, int nextDfaState) {
 	/*
 	std::unique_lock<std::mutex> lock(mutex);
 	activeCount++;
-	work.emplace(std::make_tuple(context, nextDfaState));
+	work.emplace(std::make_tuple(c, nextDfaState));
 	work_cv.notify_one();
 	/*/
-	c.owner().machine.process(c, nextDfaState);
+	std::string machineId = c.owner().machine.get_id();
+	std::cout << "processing " << machineId << " state " << nextDfaState << " at " << c.current_document_position() << std::endl;
+	c.owner().machine.process(c, nextDfaState);	
 	//*/
 }
 
@@ -79,7 +82,6 @@ abstract_syntax_graph parser::construct_result(details::job const & j, details::
 }
 
 bool parser::handle_deadlocks(details::job const & j) {
-	std::unique_lock<std::mutex> lock(mutex);
 	assert(activeCount == 0);
 	//todo
 	//build a dependency graph and detect cyclical portions that should be halted

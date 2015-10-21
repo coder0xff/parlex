@@ -3,10 +3,10 @@
 set -e -o pipefail -u
 DIR=$(pwd)
 cd "$( dirname "${BASH_SOURCE[0]}" )"
-autoreconf
+#autoreconf
 cd build
-../configure CFLAGS="-g3 -O0" CXXFLAGS="-g3 -O0"
+#../configure CFLAGS="-g3 -O0" CXXFLAGS="-g3 -O0"
 make
 cd test
-ddd test
+#ddd test
 cd "$DIR"

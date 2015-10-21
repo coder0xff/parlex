@@ -21,9 +21,9 @@ class job;
 class producer {
 	struct subscription {
 		int next_index;
-		context const c;
+		context_ref const c;
 		int next_dfa_state;
-		inline subscription(context const & c, int const nextDfaState) : next_index(0), c(c), next_dfa_state(nextDfaState) {}
+		inline subscription(context_ref const & c, int const nextDfaState) : next_index(0), c(c), next_dfa_state(nextDfaState) {}
 	};
 
 	void do_events();
@@ -44,7 +44,7 @@ protected:
 
 public:
 	void add_result(int consumedCharacterCount, std::vector<details::match> const & children);
-	void add_subscription(context const & c, int const nextDfaState);
+	void add_subscription(context_ref const & c, int const nextDfaState);
 };
 
 }

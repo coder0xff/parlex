@@ -14,7 +14,7 @@ producer::producer(job & owner, recognizer const & r, int const documentPosition
 	document_position(documentPosition) {}
 
 
-void producer::add_subscription(context const & c, int nextDfaState) {
+void producer::add_subscription(context_ref const & c, int nextDfaState) {
 	{
 		std::unique_lock<std::mutex> lock(mutex);
 		subscriptions.emplace_back(c, nextDfaState);
@@ -31,7 +31,7 @@ void producer::do_events() {
 		while (subscription.next_index < match_to_permutations.size()) {
 			auto match = matches[subscription.next_index];
 			subscription.next_index++;
-			context next = subscription.c.owner().step(subscription.c, match);
+			context_ref next = subscription.c.owner().step(subscription.c, match);
 			owner.owner.schedule(next, subscription.next_dfa_state);
 		};
 	}

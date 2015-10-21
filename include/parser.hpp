@@ -15,7 +15,7 @@ namespace details {
 class job;
 class subjob;
 class producer;
-struct context;
+class context_ref;
 
 }
 
@@ -34,10 +34,10 @@ private:
 	bool terminating;
 
 	std::vector<std::thread> workers;
-	std::queue<std::tuple<details::context, int>> work;
+	std::queue<std::tuple<details::context_ref, int>> work;
 	std::condition_variable work_cv;
 
-	void schedule(details::context const & c, int nextDfaState);
+	void schedule(details::context_ref const & c, int nextDfaState);
 	//returns true if the job is complete
 	bool handle_deadlocks(details::job const & j);
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);

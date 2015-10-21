@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "state_machine.hpp"
 #include "job.hpp"
 #include "terminal.hpp"
@@ -13,12 +15,13 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		document(document),
 		main(main)
 	{
+		std::cout << "starting job using " << main.get_id();
 		auto & producer = get_producer(match_class(main, 0));
 	}
 
 
 
-void job::connect(match_class const & matchClass, context const & c, int nextDfaState) {
+void job::connect(match_class const & matchClass, context_ref const & c, int nextDfaState) {
 	get_producer(matchClass).add_subscription(c, nextDfaState);
 }
 
