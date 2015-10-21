@@ -11,8 +11,7 @@ namespace details {
 job::job(parser & owner, std::u32string const & document, recognizer const & main) :
 		owner(owner),
 		document(document),
-		main(main),
-		result(match(match_class(main, 0), document.size()))
+		main(main)
 	{
 		auto & producer = get_producer(match_class(main, 0));
 	}

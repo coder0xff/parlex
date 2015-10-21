@@ -22,7 +22,6 @@ public:
 	recognizer const & main;
 	std::map<match_class, std::unique_ptr<producer>> producers;
 	std::mutex producers_mutex;
-	abstract_syntax_graph result;
 
 	job(parser & owner, std::u32string const & document, recognizer const & main);
 	void connect(match_class const & matchClass, context const & c, int nextState);
