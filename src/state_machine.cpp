@@ -14,7 +14,7 @@ void state_machine::start(details::subjob & sj, int documentPosition) const {
 
 void state_machine::process(details::context_ref const & c, int s) const {
 	std::cout << "processing " << get_id() << " state " << s << " document position " << c.current_document_position() << std::endl;
-	if (s == d.function.size() - 1) {
+	if (s >= d.function.size() - d.accept_state_count) {
 		accept(c);
 	}
 	for (auto const & kvp : d.function[s]) {

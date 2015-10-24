@@ -15,7 +15,8 @@ std::string parlex::abstract_syntax_graph::to_dot() const {
 		std::string from_name = i.match_class.r.get_id() + ":" + std::to_string(i.match_class.document_position) + ":" + std::to_string(i.consumed_character_count);
 		auto l = table.find(i);
 		if (l == table.end()) {
-			throw;
+			result += "\t# " + from_name + " was not found";
+			continue;
 		}
 		for (permutation const & j : l->second) {
 			for (details::match const & k : j) {

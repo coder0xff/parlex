@@ -1,5 +1,4 @@
 #include <cassert>
-#include <iostream>
 
 #include "parser.hpp"
 #include "job.hpp"
@@ -62,7 +61,6 @@ void parser::schedule(details::context_ref const & c, int nextDfaState) {
 	work_cv.notify_one();
 	/*/
 	std::string machineId = c.owner().machine.get_id();
-	std::cout << "processing " << machineId << " state " << nextDfaState << " at " << c.current_document_position() << std::endl;
 	c.owner().machine.process(c, nextDfaState);	
 	//*/
 }
