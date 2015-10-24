@@ -12,7 +12,7 @@ void parser_test_1() {
 	parlex::state_machine s("machine", dfa);
 	parlex::parser p(1);
 	parlex::abstract_syntax_graph result = p.parse(s, U"a");
-	std::cout << result.to_dot();
+	std::cout << result.to_dot() << std::endl;
 }
 
 int main(void) {

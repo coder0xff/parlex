@@ -15,7 +15,7 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		document(document),
 		main(main)
 	{
-		std::cout << "starting job using " << main.get_id();
+		std::cout << "starting job using " << main.get_id() << std::endl;
 		auto & producer = get_producer(match_class(main, 0));
 	}
 

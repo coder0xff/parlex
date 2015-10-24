@@ -28,4 +28,5 @@ std::string parlex::abstract_syntax_graph::to_dot() const {
 		}
 	}
 	result += "}";
+	return result;
 }
