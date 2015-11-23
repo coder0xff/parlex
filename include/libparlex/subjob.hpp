@@ -34,8 +34,10 @@ public:
 	void start();
 	context_ref step(context_ref const & prior, match const fromTransition);
 	void on(context_ref const & c, recognizer const & r, int nextDfaState);
+	void accept(context_ref const & c);
 	context_ref construct_context(int documentPosition);
-	void handle_halt();
+	//The parser invokes this method when none of this subjobs dependencies will produce further output
+	void flush();
 };
 
 }

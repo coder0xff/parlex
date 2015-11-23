@@ -38,8 +38,19 @@ private:
 	std::condition_variable work_cv;
 
 	void schedule(details::context_ref const & c, int nextDfaState);
+
 	//returns true if the job is complete
+	//"Deadlock" has a negative connotation, which is not appropriate here.
+	//Grammars with left recursion cause them to arise, and this "solves" them. It's a feature.
+	//We detect their existence by watching for stalls in the parser loop;
+	//no work is being done by the worker threads. To solve, we suspend further progress,
+	//compile a listing of blocked contexts via a dependency digraph, sequentially
+	//halt the blocked contexts, and then resume. If stalling occurs and there
+	//are no deadlocks in the dependency digraph (implying that it is also disconnected) then there is
+	//no more work to be done. The job is finished.
 	bool handle_deadlocks(details::job const & j);
+
+	//Construct an ASG, and if a solution was found, prunes unreachable nodes
 	abstract_syntax_graph construct_result(details::job const & j, details::match const & match);
 };
 

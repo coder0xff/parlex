@@ -50,9 +50,12 @@ void parser_test_4() {
 	std::cout << result.to_dot() << std::endl;
 }
 
+void parser_test_5() {
+}
+
 int main(void) {
-	//parser_test_1();
-	//parser_test_2();
-	//parser_test_3();
+	parser_test_1();
+	parser_test_2();
+	parser_test_3();
 	parser_test_4();
 }

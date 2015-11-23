@@ -37,8 +37,8 @@ void producer::do_events() {
 	}
 }
 
-void producer::add_result(int consumedCharacterCount, std::vector<details::match> const & children) {
-	//std::cout << "found permutation at " << (document_position) << " consuming " << consumedCharacterCount << std::endl;
+void producer::enqueue_permutation(int consumedCharacterCount, permutation const & p) {
+	//std::cout << "enqueue_permutation at " << (document_position) << " consuming " << consumedCharacterCount << std::endl;
 	bool newMatch = false;
 	{
 		std::unique_lock<std::mutex> lock(mutex);
@@ -48,7 +48,7 @@ void producer::add_result(int consumedCharacterCount, std::vector<details::match
 			matches.push_back(m);
 			newMatch = true;
 		}
-		match_to_permutations[m].insert(children);
+		match_to_permutations[m].insert(p);
 	}
 	if (newMatch) {
 		do_events();

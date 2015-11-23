@@ -6,17 +6,13 @@
 
 namespace parlex {
 
-state_machine::state_matchine(std::string id, int acceptStateCount, std::vector<std::reference_wrapper<filter const>> filters) :
-	id(id),
-	accept_state_count(acceptStateCount),
-	filters(filters) 
-{}
+state_machine::state_machine(std::string id, dfa const & d) : id(id), d(d) {}
 
-void state_machine::start(details::subjob & sj, int const documentPosition) const {
+void state_machine::start(details::subjob & sj, int documentPosition) const {
 	process(sj.construct_context(documentPosition), 0);
 }
 
-void state_machine::process(details::context_ref const & c, int const s) const {
+void state_machine::process(details::context_ref const & c, int s) const {
 	std::cout << "processing " << get_id() << " state " << s << " document position " << c.current_document_position() << std::endl;
 	if (s >= d.function.size() - d.accept_state_count) {
 		accept(c);
@@ -36,6 +32,18 @@ void state_machine::on(details::context_ref const & c, recognizer const & r, int
 
 void state_machine::accept(details::context_ref const & c) const {
 	c.owner().add_result(c.current_document_position() - c.owner().document_position, c.result());
+}
+
+void state_machine::add_transition(int fromState, recognizer const & recognizer, int toState) {
+	while (state.size() <= std::max(fromState, toState)) {
+		state.emplace_back();
+	}
+	if (!function[fromState].emplace(
+			std::piecewise_construct,
+			std::forward_as_tuple(recognizer),
+			std::forward_as_tuple(toState)).second) {
+		throw "transition already specified";
+	}
 }
 
 std::string state_machine::get_id() const {

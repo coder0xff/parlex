@@ -92,7 +92,7 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_test_OBJECTS = test-test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
-test_DEPENDENCIES = ../src/libparlex.a
+test_DEPENDENCIES = ../src/libparlex/libparlex.a
 test_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(test_LDFLAGS) \
 	$(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -247,8 +247,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 test_SOURCES = test.cpp
-test_CPPFLAGS = -std=c++11 -I../../include
-test_LDADD = ../src/libparlex.a
+test_CPPFLAGS = -std=c++11 -I../../include/libparlex
+test_LDADD = ../src/libparlex/libparlex.a
 test_LDFLAGS = -pthread
 all: all-am
 

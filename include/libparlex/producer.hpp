@@ -43,7 +43,7 @@ protected:
 	producer(job & owner, recognizer const & r, int const documentPosition);
 
 public:
-	void add_result(int consumedCharacterCount, std::vector<details::match> const & children);
+	void enqueue_result(int consumedCharacterCount, permutation const & p);
 	void add_subscription(context_ref const & c, int const nextDfaState);
 };
 
