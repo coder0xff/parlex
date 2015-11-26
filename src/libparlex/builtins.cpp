@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "builtins.hpp"
+#include "uni_trunc.hpp"
 
 namespace parlex {
 namespace details {
@@ -19,19 +20,9 @@ std::string any_character_t::get_id() const {
 
 }
 
-details::any_character_t any_character;
+namespace builtins {
 
-std::string uni_trunc(std::u32string const & s) {
-	std::stringstream result;
-	for (char32_t const & c : s) {
-		if ((int32_t)c < 0x100) {
-			result << (char)(int32_t)c;
-		} else {
-			result << "?";
-		}
-	}
-	return result.str();
-}
+parlex::details::any_character_t any_character;
 
 string_terminal::string_terminal(std::u32string const & s) : s(s), length(s.length()), id(uni_trunc(s)) {}
 
@@ -47,4 +38,5 @@ std::string string_terminal::get_id() const {
 	return id;
 }
 
+}
 }

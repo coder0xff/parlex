@@ -7,6 +7,7 @@
 
 #include "match.hpp"
 #include "match_class.hpp"
+#include "permutation.hpp"
 
 namespace parlex {
 namespace details {
@@ -29,7 +30,7 @@ public:
 	context_ref prior() const;
 	int current_document_position() const;
 	std::unique_ptr<match> from_transition() const; //unique_ptr serves as optional
-	std::vector<match> result() const;
+	permutation result() const;
 };
 
 class context {

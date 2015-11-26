@@ -44,7 +44,7 @@ producer & job::get_producer(match_class const & matchClass) {
 			state_machine const * machine = static_cast<state_machine const *>(&matchClass.r);
 			subjob * result = new subjob(*this, *machine, matchClass.document_position);
 			lock.lock();
-			auto didEmplace = producers.emplace(
+			bool didEmplace = producers.emplace(
 				std::piecewise_construct,
 				std::forward_as_tuple(matchClass),
 				std::forward_as_tuple(result)

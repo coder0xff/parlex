@@ -46,5 +46,15 @@ void subjob::on(context_ref const & c, recognizer const & r, int nextDfaState) {
 	owner.connect(details::match_class(r, c.current_document_position()), c, nextDfaState);
 }
 
+void subjob::accept(context_ref const & c) {
+	permutation p = 
+	if (!machine.get_filter()) {
+		int len = c.current_document_position() - c.owner().document_position;
+		enqueue_permutation(len, c.result());
+	} else {
+		std::unique_lock<std::mutex> lock(mutex);
+		queued_permutations.push_back(c.result());
+	}
 }
+
 }

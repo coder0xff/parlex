@@ -1,4 +1,4 @@
-#include <iostream>
+//#include <iostream>
 
 #include "state_machine.hpp"
 #include "context.hpp"
@@ -6,13 +6,22 @@
 
 namespace parlex {
 
-state_machine::state_machine(std::string id, dfa const & d) : id(id), d(d) {}
+state_machine::state_machine(std::string id, int acceptStateCount) :
+	id(id),
+	accept_state_count(acceptStateCount)
+{}
 
-void state_machine::start(details::subjob & sj, int documentPosition) const {
+state_machine::state_machine(std::string id, int acceptStateCount, filter_function filter) :
+	id(id),
+	accept_state_count(acceptStateCount),
+	filter(filter)
+{}
+
+void state_machine::start(details::subjob & sj, int const documentPosition) const {
 	process(sj.construct_context(documentPosition), 0);
 }
 
-void state_machine::process(details::context_ref const & c, int s) const {
+void state_machine::process(details::context_ref const & c, int const s) const {
 	std::cout << "processing " << get_id() << " state " << s << " document position " << c.current_document_position() << std::endl;
 	if (s >= d.function.size() - d.accept_state_count) {
 		accept(c);
@@ -20,7 +29,7 @@ void state_machine::process(details::context_ref const & c, int s) const {
 	for (auto const & kvp : d.function[s]) {
 		recognizer const & transition = kvp.first;
 		int const next_state = kvp.second;
-		std::cout << get_id() << " state " << s << " position " << c.owner().contexts.front().current_document_position << " subscribes to " << transition.get_id() << " position " << c.current_document_position() << std::endl;
+		//std::cout << get_id() << " state " << s << " position " << c.owner().contexts.front().current_document_position << " subscribes to " << transition.get_id() << " position " << c.current_document_position() << std::endl;
 		on(c, transition, next_state);
 	}
 }
@@ -34,22 +43,13 @@ void state_machine::accept(details::context_ref const & c) const {
 	c.owner().add_result(c.current_document_position() - c.owner().document_position, c.result());
 }
 
-void state_machine::add_transition(int fromState, recognizer const & recognizer, int toState) {
-	while (state.size() <= std::max(fromState, toState)) {
-		state.emplace_back();
-	}
-	if (!function[fromState].emplace(
-			std::piecewise_construct,
-			std::forward_as_tuple(recognizer),
-			std::forward_as_tuple(toState)).second) {
-		throw "transition already specified";
-	}
-}
-
 std::string state_machine::get_id() const {
 	return id;
 }
 
+filter_function state_machine::get_filter() const {
+	return filter;
+}
 
 
 }

@@ -4,11 +4,11 @@
 #include <map>
 #include <string>
 
-#include "dfa.hpp"
+#include "state_machine.hpp"
 
 namespace parlex {
 
-typedef std::map<std::string, recognizer> grammar;
+typedef std::map<std::string, state_machine> grammar;
 
 }
 

@@ -9,7 +9,6 @@
 
 #include "match.hpp"
 #include "permutation.hpp"
-#include "dfa.hpp"
 #include "context.hpp"
 #include "producer.hpp"
 
@@ -25,6 +24,7 @@ class subjob : public producer {
 public:
 	state_machine const & machine;
 	std::list<context> contexts;
+	std::list<permutation> queued_permutations;
 	std::mutex mutex;
 
 	subjob(job & owner, state_machine const & machine, int const documentPosition);

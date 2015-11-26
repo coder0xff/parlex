@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "recognizer.hpp"
-#include "dfa.hpp"
 #include "context.hpp"
+#include "filter_function.hpp"
 
 namespace parlex {
 
@@ -16,18 +16,22 @@ class parser;
 //States from N-a to N-1 are the accept states, where N is states.size() and a is accept_state_count
 class state_machine : public recognizer {
 public:
-	state_matchine(std::string id, int acceptStateCount, std::vector<std::reference_wrapper<filter const>> filters);
+	state_machine(std::string id, int acceptStateCount);
+	state_machine(std::string id, int acceptStateCount, filter_function filter);
 	virtual ~state_machine() = default;
 	void start(details::subjob & sj, int documentPosition) const;
-
 	void add_transition(int fromState, recognizer const & recognizer, int toState);
+	virtual std::string get_id() const final;
+	filter_function get_filter() const;
+
 private:
 	friend class parser;
 
 	std::string const id;
-	std::vector<std::reference_wrapper<filter const>> const filters;
 	int const accept_state_count; //must be greater than 0
 	std::vector<std::map<std::reference_wrapper<recognizer const>, int, details::recognizer_reference_comparer>> states;
+	filter_function const filter;
+
 	void on(details::context_ref const & c, recognizer const & r, int nextDfaState) const;
 	void process(details::context_ref const & c, int dfaState) const;
 	void accept(details::context_ref const & c) const;
