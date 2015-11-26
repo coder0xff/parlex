@@ -43,7 +43,7 @@ protected:
 	producer(job & owner, recognizer const & r, int const documentPosition);
 
 public:
-	void enqueue_permutation(int consumedCharacterCount, permutation const & p);
+	void enque_permutation(int consumedCharacterCount, permutation const & p);
 	void add_subscription(context_ref const & c, int const nextDfaState);
 };
 

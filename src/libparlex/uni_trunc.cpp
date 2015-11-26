@@ -1,3 +1,6 @@
+#include <string>
+#include <sstream>
+
 #include "uni_trunc.hpp"
 
 //quick & dirty

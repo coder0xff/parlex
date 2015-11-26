@@ -1,4 +1,4 @@
-//#include <iostream>
+#include <iostream>
 
 #include "state_machine.hpp"
 #include "context.hpp"
@@ -23,24 +23,15 @@ void state_machine::start(details::subjob & sj, int const documentPosition) cons
 
 void state_machine::process(details::context_ref const & c, int const s) const {
 	std::cout << "processing " << get_id() << " state " << s << " document position " << c.current_document_position() << std::endl;
-	if (s >= d.function.size() - d.accept_state_count) {
-		accept(c);
+	if (s >= states.size() - accept_state_count) {
+		c.owner().accept(c);
 	}
-	for (auto const & kvp : d.function[s]) {
+	for (auto const & kvp : states[s]) {
 		recognizer const & transition = kvp.first;
 		int const next_state = kvp.second;
-		//std::cout << get_id() << " state " << s << " position " << c.owner().contexts.front().current_document_position << " subscribes to " << transition.get_id() << " position " << c.current_document_position() << std::endl;
-		on(c, transition, next_state);
+		std::cout << get_id() << " state " << s << " position " << c.owner().contexts.front().current_document_position << " subscribes to " << transition.get_id() << " position " << c.current_document_position() << std::endl;
+		c.owner().on(c, transition, next_state);
 	}
-}
-
-//hook up an event handler
-void state_machine::on(details::context_ref const & c, recognizer const & r, int nextDfaState) const {
-	c.owner().on(c, r, nextDfaState);
-}
-
-void state_machine::accept(details::context_ref const & c) const {
-	c.owner().add_result(c.current_document_position() - c.owner().document_position, c.result());
 }
 
 std::string state_machine::get_id() const {
@@ -51,5 +42,14 @@ filter_function state_machine::get_filter() const {
 	return filter;
 }
 
+void state_machine::add_transition(int fromState, recognizer const & recognizer, int toState) {
+	int impliedStateCount = std::max(fromState, toState) + 1;
+	while (states.size() < impliedStateCount) {
+		states.emplace_back();
+	}
+	if (!states[fromState].insert(decltype(states)::value_type::value_type(recognizer, toState)).second) {
+		throw "duplicate key";
+	}
+}
 
 }

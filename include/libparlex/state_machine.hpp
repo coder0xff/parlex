@@ -32,9 +32,7 @@ private:
 	std::vector<std::map<std::reference_wrapper<recognizer const>, int, details::recognizer_reference_comparer>> states;
 	filter_function const filter;
 
-	void on(details::context_ref const & c, recognizer const & r, int nextDfaState) const;
 	void process(details::context_ref const & c, int dfaState) const;
-	void accept(details::context_ref const & c) const;
 };
 
 }

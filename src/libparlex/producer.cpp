@@ -37,8 +37,8 @@ void producer::do_events() {
 	}
 }
 
-void producer::enqueue_permutation(int consumedCharacterCount, permutation const & p) {
-	//std::cout << "enqueue_permutation at " << (document_position) << " consuming " << consumedCharacterCount << std::endl;
+void producer::enque_permutation(int consumedCharacterCount, permutation const & p) {
+	//std::cout << "enque_permutation at " << (document_position) << " consuming " << consumedCharacterCount << std::endl;
 	bool newMatch = false;
 	{
 		std::unique_lock<std::mutex> lock(mutex);

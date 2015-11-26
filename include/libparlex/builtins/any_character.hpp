@@ -16,7 +16,9 @@ public:
 
 }
 
-extern details::any_character_t any_character;
+namespace builtins {
+	extern details::any_character_t any_character;
+}
 
 }
 

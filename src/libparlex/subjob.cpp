@@ -47,14 +47,15 @@ void subjob::on(context_ref const & c, recognizer const & r, int nextDfaState) {
 }
 
 void subjob::accept(context_ref const & c) {
-	permutation p = 
+	permutation p = c.result();
 	if (!machine.get_filter()) {
 		int len = c.current_document_position() - c.owner().document_position;
-		enqueue_permutation(len, c.result());
+		enque_permutation(len, p);
 	} else {
 		std::unique_lock<std::mutex> lock(mutex);
-		queued_permutations.push_back(c.result());
+		queued_permutations.push_back(p);
 	}
 }
 
+}
 }
