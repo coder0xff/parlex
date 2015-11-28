@@ -16,7 +16,30 @@ job::job(parser & owner, std::u32string const & document, recognizer const & mai
 		main(main)
 	{
 		std::cout << "starting job using " << main.get_id() << std::endl;
-		auto & producer = get_producer(match_class(main, 0));
+
+		//similar to get_product, but different for constructor
+		match_class matchClass(main, 0);
+		if (main.is_terminal()) {
+			terminal const * const t = static_cast<terminal const *>(&main);
+			token * result = new token(*this, *t, 0);
+			producers.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(matchClass),
+				std::forward_as_tuple(result)
+			);
+		} else {
+			state_machine const * machine = static_cast<state_machine const *>(&main);
+			subjob * result = new subjob(*this, *machine, 0);
+			producers.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(matchClass),
+				std::forward_as_tuple(result)
+			);
+			//seed the parser with the root state
+			owner.work.emplace(std::make_tuple(result->construct_context(0), 0));
+			//give it a tickle!
+			owner.work_cv.notify_one(); //parser::parse has mutex locked
+		}
 	}
 
 
@@ -53,7 +76,6 @@ producer & job::get_producer(match_class const & matchClass) {
 			if (didEmplace) {
 				result->start();
 			}
-			lock.lock();
 		}
 	}
 	return *producers[matchClass];

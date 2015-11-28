@@ -15,6 +15,9 @@ namespace details {
 class subjob;
 class context_ref_counter;
 
+//context_ref is a development and debugging structure
+//that implements a checked pointer and should
+//be optimized away to a simple pointer in release.
 class context_ref {
 	context_ref_counter * rc;
 public:

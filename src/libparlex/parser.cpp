@@ -1,5 +1,5 @@
 #include <cassert>
-
+#include "logging.hpp"
 #include "parser.hpp"
 #include "job.hpp"
 #include "context.hpp"
@@ -11,15 +11,18 @@ namespace parlex {
 parser::parser(int threadCount) : activeCount(0), terminating(false) {
 	for (; threadCount > 0; --threadCount) {
 		workers.emplace_back([=]() {
+			DEBUG("thread " << threadCount << " started");
 			std::unique_lock<std::mutex> lock(mutex);
 			goto wait;
 			while (!terminating) {
 				{
+					DEBUG("thread " << threadCount << " popping item")
 					std::tuple<details::context_ref, int> & item = work.front();
 					work.pop();
 					lock.unlock();
 					auto const & context = std::get<0>(item);
 					auto const nextDfaState = std::get<1>(item);
+					DEBUG("thread " << threadCount << " executing dfa state")
 					context.owner().machine.process(context, nextDfaState);
 					if (--activeCount == 0) {
 						halt_cv.notify_one();
@@ -42,8 +45,8 @@ parser::~parser() {
 }
 
 abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const & document) {
+	std::unique_lock<std::mutex> lock(mutex); //use the lock to make sure we see activeCount != 0
 	details::job j(*this, document, r);
-	std::unique_lock<std::mutex> lock(mutex);
 	while (activeCount != 0) {
 		halt_cv.wait(lock);
 		if (handle_deadlocks(j)) {
@@ -55,8 +58,9 @@ abstract_syntax_graph parser::parse(recognizer const & r, std::u32string const &
 
 void parser::schedule(details::context_ref const & c, int nextDfaState) {
 	/*
-	std::unique_lock<std::mutex> lock(mutex);
+	DEBUG("scheduling");
 	activeCount++;
+	std::unique_lock<std::mutex> lock(mutex);
 	work.emplace(std::make_tuple(c, nextDfaState));
 	work_cv.notify_one();
 	/*/
